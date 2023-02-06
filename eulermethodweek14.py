@@ -14,7 +14,7 @@ def euler_step(x, t, dt, f):
     return x_n_1
 # making solve_to function to solve ODE between t0 and t1, with initial condition x0.
 
-def solve_to(x0, t0, t1, delta_max, f):
+def solve_to(x0, t0, t1, delta_max, f,method='euler'):
     x = x0
     t = t0  
     times = [t0]
@@ -23,7 +23,12 @@ def solve_to(x0, t0, t1, delta_max, f):
     #defining timesteps and then time loop with update rule.
     while t < t1:
         dt = min(delta_max, t1 - t)
-        x = euler_step(x, t, dt, f)
+        if method == 'euler':
+            x = euler_step(x, t, dt, f)
+        elif method == 'rk4':
+            x = rk4_step(x, t, dt, f)
+        else:
+            raise ValueError("Method must be either 'euler' or 'rk4'")
         t += dt
         times.append(t)
         values.append(x)
@@ -34,13 +39,18 @@ def x_dot(x, t):
     return x
 
 # function that combines all together
-def main():
+def main(method='euler'):
     
-    times, values = solve_to(x0, t0, t1, delta_max, x_dot)
+    if method == 'euler':
+        times, values = solve_to(x0, t0, t1, delta_max, x_dot, method='euler')
+    elif method == 'rk4':
+        times, values = solve_to(x0, t0, t1, delta_max, x_dot, method='rk4')
+        
     print("Values of the solution:")
     for i, value in enumerate(values):
         print("x({:.2f}) = {:.6f}".format(times[i], value))
-main()
+
+
 
     
 
@@ -50,7 +60,7 @@ main()
 def true_solution(x0, t):
     return x0 * np.exp(t)
 
-import numpy as np
+
 # Compute the error for different values of delta_max
 delta_max_values = np.logspace(-2, 0, 10)
 errors = []
