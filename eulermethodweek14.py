@@ -65,15 +65,16 @@ def true_solution(x0, t):
     return x0 * np.exp(t)
 
 
-# Compute the error for different values of delta_max
+# Compute the error for different values of delta_max// change 'method=''' between RK4 and Euler for different error plots.
 delta_max_values = np.logspace(-2, 0, 10)
 errors = []
 for delta_max in delta_max_values:
     
-    times, values = solve_to(x0, t0, t1, delta_max, x_dot)
+    times, values = solve_to(x0, t0, t1, delta_max, x_dot,method='Euler')
     true_values = true_solution(x0, times)
     error = np.abs(true_values - values)
     errors.append(error)
+
 
 # Plot the error as a function of delta_max
 plt.figure()
