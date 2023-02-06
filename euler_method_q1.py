@@ -3,7 +3,7 @@ def euler_step(x, t, dt, f):
 
 def solve_to(x0, t0, t1, delta_max, f):
     x = x0
-    t = t0
+    t = t0  
     times = [t0]
     values = [x0]
     while t < t1:
