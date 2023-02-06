@@ -74,3 +74,13 @@ plt.show()
 
 
 
+# defeining rk4 method.
+
+def rk4_step(x, t, dt, f):
+    k1 = f(x, t)
+    k2 = f(x + dt/2 * k1, t + dt/2)
+    k3 = f(x + dt/2 * k2, t + dt/2)
+    k4 = f(x + dt * k3, t + dt)
+    x_n_1 = x + dt/6 * (k1 + 2 * k2 + 2 * k3 + k4)
+    return x_n_1
+
