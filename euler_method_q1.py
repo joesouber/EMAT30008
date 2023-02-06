@@ -41,3 +41,27 @@ def main():
     plt.show()
 
 
+min_number_steps = math.floor((t1- t0) / deltat_max)
+    
+    
+    #initialising arrays 
+    x = np.array([])
+    t = np.array([])
+    for i in range(min_number_steps):
+        t[i + 1] = t[i] + deltat_max
+        x[i + 1] = euler_step(x[i], t[i], deltat_max,f)
+    return x, t
+
+#defining the ODE to be solved
+def x_dot(x, t):
+    return x
+
+#initial conditions
+t0=0
+t1=1
+x0=1
+deltat_max = 0.1
+
+x, t = solve_to(x0, t0, t1, deltat_max,x_dot)
+
+print([x,t])
