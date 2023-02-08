@@ -1,10 +1,11 @@
+#%%
 import numpy as np
 import math
 import matplotlib.pyplot as plt
 
 x0 = 1
 t0 = 0
-t1 = 1
+t1 = 100
 delta_max = 0.1
 
 #%% defining Euler method
@@ -92,17 +93,18 @@ plt.show()
 #%%Now wish to extend to solve system of ODEs rather than single ODE.
 
 
+
 # Define new function (ODE system to be solved)
 def func(X, t):
     x, y = X
     return np.array([y, -x])
 
 #Defining step functions again to account for new array.
-def euler_step(X, t, dt, f):
+def euler_step_system(X, t, dt, f):
     X_n_1 = X + dt * f(X, t)
     return X_n_1
 
-def rk4_step(X, t, dt, f):
+def rk4_step_system(X, t, dt, f):
     k1 = f(X, t)
     k2 = f(X + dt/2 * k1, t + dt/2)
     k3 = f(X + dt/2 * k2, t + dt/2)
@@ -110,3 +112,44 @@ def rk4_step(X, t, dt, f):
     X_i_1 = X + dt/6 * (k1 + 2 * k2 + 2 * k3 + k4)
     return X_i_1
 
+def solve_to_system(X0, t0, t1, delta_max, f, method='Euler'):
+    X = X0
+    t = t0  
+    times = [t0]
+    values = [X0]
+
+    while t < t1:
+        dt = min(delta_max, t1 - t)
+        if method == 'Euler':
+            X = euler_step_system(X, t, dt, f)
+        elif method == 'RK4':
+            X = rk4_step_system(X, t, dt, f)
+        t += dt
+        times.append(t)
+        values.append(X)
+    return times, values
+
+def solver(method='Euler'):
+    X0 = np.array([1, 0])
+    if method == 'Euler':
+        times, values = solve_to_system(X0, t0, t1, delta_max, func, method='Euler')
+    elif method == 'RK4':
+        times, values = solve_to_system(X0, t0, t1, delta_max, func, method='RK4')
+        
+    print("Values of the solution:")
+    for i, value in enumerate(values):
+        print("X({:.2f}) = {}".format(times[i], value))
+
+#note that this plots nicely for large time difference, (i.e t0=0, t1=10), i am also using zip to avoid tuple errors.
+    
+    plt.plot(values, [func(x, t) for x, t in zip(values, times)], label='Euler')
+    plt.plot(values, [func(x, t) for x, t in zip(values, times)], label='RK4')
+
+    plt.xlabel('x')
+    plt.ylabel('$\dot{x}$')
+    plt.legend()
+    plt.show()
+   
+
+solver(method="Euler")
+# %%
