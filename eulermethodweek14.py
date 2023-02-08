@@ -97,3 +97,16 @@ def func(X, t):
     x, y = X
     return np.array([y, -x])
 
+#Defining step functions again to account for new array.
+def euler_step(X, t, dt, f):
+    X_n_1 = X + dt * f(X, t)
+    return X_n_1
+
+def rk4_step(X, t, dt, f):
+    k1 = f(X, t)
+    k2 = f(X + dt/2 * k1, t + dt/2)
+    k3 = f(X + dt/2 * k2, t + dt/2)
+    k4 = f(X + dt * k3, t + dt) 
+    X_i_1 = X + dt/6 * (k1 + 2 * k2 + 2 * k3 + k4)
+    return X_i_1
+
