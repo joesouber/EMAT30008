@@ -42,10 +42,11 @@ def solve_to(x0, t0, t1, delta_max, f, method='Euler'):
         values.append(x)
     return times, values
 
+#ODE
 def x_dot(x, t):
     return x
 
-def main(method='Euler'):
+def solver(method='Euler'):
     
     if method == 'Euler':
         times, values = solve_to(x0, t0, t1, delta_max, x_dot, method='Euler')
@@ -57,7 +58,7 @@ def main(method='Euler'):
         print("x({:.2f}) = {:.6f}".format(times[i], value))
 
 # Call the main function with either 'euler' or 'rk4'
-main(method='RK4')
+solver(method='RK4')
 
 
 # Analytical solution of the ODE x_dot = x
@@ -86,3 +87,13 @@ for i, delta_max in enumerate(delta_max_values):
     plt.plot(delta_max * np.ones(len(errors[i])), errors[i], 'o', label=f'delta_max = {delta_max}')
 plt.legend()
 plt.show()
+
+
+#%%Now wish to extend to solve system of ODEs rather than single ODE.
+
+
+# Define new function (ODE system to be solved)
+def func(X, t):
+    x, y = X
+    return np.array([y, -x])
+
