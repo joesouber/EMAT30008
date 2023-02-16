@@ -24,8 +24,8 @@ bs = [0.1, 0.5]
 for b in bs:
     pars = [a, b, d]
     X0 = [0.5, 0.5]
-    t_eval = np.linspace(0, 10, 100)
-    sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 10], X0, t_eval=t_eval)
+    t_eval = np.linspace(0, 200, 1000)
+    sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
 
 
     plt.plot(sol.t, sol.y[0], label='Predator population')
@@ -57,8 +57,8 @@ plt.show()
 #We can see that there is a closed trajectory, or periodic orbit, in the phase space of the system. To find the starting conditions and period of this orbit, we can integrate the system starting from different initial conditions and look for orbits that close in on themselves.
 
 X0 = [0.3, 0.3]
-t_eval = np.linspace(0, 50, 1000)
-sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 50], X0, t_eval=t_eval)
+t_eval = np.linspace(0, 200, 1000)
+sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
 
 fig, ax = plt.subplots()
 ax.plot(sol.y[0], sol.y[1], color='red')
@@ -67,3 +67,8 @@ ax.set_xlabel('Prey population')
 ax.set_ylabel('Predator population')
 
 plt.show()
+
+
+
+#%%New attempt at week15
+
