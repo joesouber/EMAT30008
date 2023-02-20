@@ -69,6 +69,75 @@ ax.set_ylabel('Predator population')
 plt.show()
 
 
+#%% This should work!
+from scipy.optimize import fsolve
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
 
-#%%New attempt at week15
+
+def shooting(ode, u0, pc, solver, *args):
+    G = shootingG(ode)
+    orbit = solver(G, u0, args=(pc, *args))
+    return orbit
+
+def shootingG(ode):
+    def G(x0, pc, *args):
+        def F(u0, T):
+            tArr = np.linspace(0, T, 1000)
+            sol = solve_ivp(ode, t_span=(0, T), y0=u0, method='RK45', args=tuple(args))
+            return sol.y[:, -1]
+        T = x0[-1]
+        u0 = x0[:-1]
+        g = np.append(u0 - F(u0, T), pc(u0, *args))  # Constructs array of ((initial guess - solution, phase condition)
+        return g
+    return G
+
+def main():
+    """
+    Function for predator-prey equations
+    """
+
+    def predator_prey(t, y, args):
+        x = y[0]
+        y = y[1]
+
+        a = args[0]
+        d = args[1]
+        b = args[2]
+     
+        dxdt = x * (1 - x) - (a * x * y) / (d + x)
+        dydt = b * y * (1 - (y / x))
+        return np.array([dxdt, dydt])
+    
+    def pc_predator_prey(u0, args):
+        return predator_prey(0, u0, args)[0]
+    
+    predator_prey_u0 = np.array([0.07, 0.16, 23])
+    
+    args = [1, 0.1, 0.4]
+    tArr = np.linspace(0, 1000, 1000)
+    t = np.linspace(0, 1000, 1000)
+    predator_prey_solution = solve_ivp(predator_prey, [tArr[0], tArr[-1]], predator_prey_u0[:-1], method='RK45', args=(args,))
+    
+    predator_prey_solution_x = predator_prey_solution.y[0]
+    predator_prey_solution_y = predator_prey_solution.y[1]
+    
+    plt.plot(predator_prey_solution_x, predator_prey_solution_y,label='ODE')
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.legend()
+    plt.show()
+
+
+    shooting_orbit = shooting(predator_prey, predator_prey_u0, pc_predator_prey, fsolve, args)
+    
+    plt.plot(shooting_orbit[0], shooting_orbit[1], 'ro', label="Numerical Shooting Orbit")
+    plt.plot(predator_prey_solution_x, predator_prey_solution_y)
+    plt.ylabel('y')
+    plt.xlabel('x')
+    plt.legend()
+    plt.show()
+
+main()
 
