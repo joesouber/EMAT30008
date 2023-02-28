@@ -75,15 +75,111 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 
-
 def shooting(ode, u0, pc, solver, *args):
+    """
+    A function that uses numerical shooting to find limit cycles of
+    a specified ODE.
+
+    Parameters
+    ----------
+    ode : function
+        The ODE to apply shooting to. The ode function should take
+        a single parameter (the state vector) and return the
+        right-hand side of the ODE as a numpy.array.
+    u0 : numpy.array
+        An initial guess at the initial values for the limit cycle.
+    pc : function
+        A function that computes the phase condition for the ODE.
+        The phase condition should take the initial state vector
+        as input and return a scalar value.
+    solver : function
+        A numerical solver for finding the root of the shooting
+        function. The solver should take a function (the shooting
+        function), an initial guess for the root, and additional
+        arguments to the shooting function as input, and return
+        the root as a numpy.array.
+    args : tuple
+        Additional arguments to pass to the ODE and phase condition
+        functions.
+
+    Returns
+    -------
+    numpy.array
+        Returns a numpy.array containing the corrected initial values
+        for the limit cycle. If the numerical root finder failed, the
+        returned array is empty.
+    """
+
     G = shootingG(ode)
     orbit = solver(G, u0, args=(pc, *args))
     return orbit
 
+
 def shootingG(ode):
+    """
+    A function that returns the shooting function for the specified
+    ODE.
+
+    Parameters
+    ----------
+    ode : function
+        The ODE to apply shooting to. The ode function should take
+        a single parameter (the state vector) and return the
+        right-hand side of the ODE as a numpy.array.
+
+    Returns
+    -------
+    function
+        Returns a function that takes the initial guess (as a numpy.array),
+        the phase condition function, and additional arguments as input,
+        and returns the shooting function as a numpy.array.
+    """
+
     def G(x0, pc, *args):
+        """
+        The shooting function for the specified ODE.
+
+        Parameters
+        ----------
+        x0 : numpy.array
+            The initial guess for the limit cycle, with the last element
+            being the period of the cycle.
+        pc : function
+            The phase condition function for the ODE.
+        args : tuple
+            Additional arguments to pass to the ODE and phase condition
+            functions.
+
+        Returns
+        -------
+        numpy.array
+            Returns an array of size (n+1,), where n is the number of
+            state variables in the ODE. The first n elements of the
+            array are the difference between the initial guess and
+            the ODE solution at the end of one period, and the last
+            element is the difference between the phase condition
+            and the value of the state variable that the phase
+            condition should be equal to at the end of one period.
+        """
+
         def F(u0, T):
+            """
+            A helper function that solves the ODE with the given
+            initial values and time span.
+
+            Parameters
+            ----------
+            u0 : numpy.array
+                The initial values for the state variables of the ODE.
+            T : float
+                The time span to integrate over.
+
+            Returns
+            -------
+            numpy.array
+                Returns the final values of the state variables at
+                the end of the time span.
+            """
             tArr = np.linspace(0, T, 1000)
             sol = solve_ivp(ode, t_span=(0, T), y0=u0, method='RK45', args=tuple(args))
             return sol.y[:, -1]
@@ -92,6 +188,9 @@ def shootingG(ode):
         g = np.append(u0 - F(u0, T), pc(u0, *args))  # Constructs array of ((initial guess - solution, phase condition)
         return g
     return G
+
+
+
 
 def main():
     """
