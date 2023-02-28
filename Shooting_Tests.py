@@ -92,4 +92,3 @@ if __name__ == '__main__':
             break
         elif i == len(tolerance):
             print(f"Limit cycle is found to be accurate at a tolerance level of {tolerance[-1]} or greater, for a 2 dimensional ODE\n")
-
