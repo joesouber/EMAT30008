@@ -19,7 +19,9 @@ def pred_prey_eq(X, pars):
 
 a = 1
 d = 0.1
-bs = [0.1, 0.5]
+bs = [0.1,0.5]
+
+
 
 for b in bs:
     pars = [a, b, d]
