@@ -216,7 +216,7 @@ def main():
     
     predator_prey_u0 = np.array([0.07, 0.16, 23])
     
-    args = [1, 0.1, 0.4]
+    args = [1, 0.1, 0.1]
     tArr = np.linspace(0, 1000, 1000)
     t = np.linspace(0, 1000, 1000)
     predator_prey_solution = solve_ivp(predator_prey, [tArr[0], tArr[-1]], predator_prey_u0[:-1], method='RK45', args=(args,))
@@ -242,3 +242,4 @@ def main():
 
 main()
 
+    
