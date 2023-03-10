@@ -1,0 +1,16 @@
+import numpy as np
+
+xN= 50
+u_start = gamma1 
+u_end = gamma2
+
+step_size = 0.1
+
+exact_sol = (gamma2-gamma1)/(b - a) (x - a) + gamma1
+
+dx = (gamma2 - gamma1)/N  #Grid spacing 
+x = np.linpsace( gamme1,gamma2, N+1) #Grid points 
+
+def fun(array_U, gamma1, gamma2, N):
+    F = np.zeros(N+1)
+
