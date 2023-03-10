@@ -1,16 +1,28 @@
 import numpy as np
+from scipy.optimize import root
+import matplotlib.pyplot as plt
+N = 50
+gamma1 = 1
+gamma2=2
+bcs = [gamma1,gamma2]
 
-xN= 50
-u_start = gamma1 
-u_end = gamma2
+dx = (gamma2-gamma1)/N # grid spacing
+x = np.linspace(gamma1,gamma2,N+1) # grid points
+u0 = np.zeros(N+1) # initial guess
 
-step_size = 0.1
+def func(u,bcs,dx,N):
+    F =np.zeros(N+1)
+    F[0] = (u[1]-2*u[0]+bcs[0])/dx**2
 
-exact_sol = (gamma2-gamma1)/(b - a) (x - a) + gamma1
+    for i in range(1,N-1):
+        F[i] = (u[i+1]-2*u[i]+u[i-1])/dx**2
 
-dx = (gamma2 - gamma1)/N  #Grid spacing 
-x = np.linpsace( gamme1,gamma2, N+1) #Grid points 
+    F[N] = (bcs[1]-2*u[N]+u[N-1])/dx**2
 
-def fun(array_U, gamma1, gamma2, N):
-    F = np.zeros(N+1)
+    return F
 
+sol = root(func,u0,args=(bcs,dx,N))
+
+print(sol.x)
+plt.plot(x,sol.x)
+plt.show()
