@@ -1,28 +1,35 @@
 import numpy as np
 from scipy.optimize import root
 import matplotlib.pyplot as plt
+
 N = 50
-gamma1 = 1
-gamma2=2
-bcs = [gamma1,gamma2]
+gamma1 = 0
+gamma2 = 3
+bcs = [gamma1, gamma2]
+a = 0
+b = -0.5
+dx = (gamma2 - gamma1) / N  # grid spacing
+x = np.linspace(gamma1, gamma2, N + 1)  # grid points
+u0 = np.zeros(N + 1)  # initial guess
 
-dx = (gamma2-gamma1)/N # grid spacing
-x = np.linspace(gamma1,gamma2,N+1) # grid points
-u0 = np.zeros(N+1) # initial guess
+def func(u, bcs, dx, N):
+    F = np.zeros(N + 1)
+    F[0] = (u[1] - 2 * u[0] + bcs[0]) / dx ** 2
 
-def func(u,bcs,dx,N):
-    F =np.zeros(N+1)
-    F[0] = (u[1]-2*u[0]+bcs[0])/dx**2
+    for i in range(1, N - 1):
+        F[i] = (u[i + 1] - 2 * u[i] + u[i - 1]) / dx ** 2
 
-    for i in range(1,N-1):
-        F[i] = (u[i+1]-2*u[i]+u[i-1])/dx**2
-
-    F[N] = (bcs[1]-2*u[N]+u[N-1])/dx**2
+    F[N] = (bcs[1] - 2 * u[N] + u[N - 1]) / dx ** 2
 
     return F
 
-sol = root(func,u0,args=(bcs,dx,N))
+sol = root(func, u0, args=(bcs, dx, N))
 
-print(sol.x)
-plt.plot(x,sol.x)
+def exact_sol(x):
+    return ((gamma2 - gamma1) / (b - a)) * (x - a) + gamma1
+
+
+plt.plot(x, sol.x, label="Numerical solution")
+plt.plot(x, exact_sol(x), label="Exact solution")
+plt.legend()
 plt.show()
