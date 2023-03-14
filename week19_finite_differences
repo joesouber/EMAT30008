@@ -1,88 +1,75 @@
-import numpy as np
 from scipy.optimize import root
+import numpy as np
 import matplotlib.pyplot as plt
 
-N = 50
-gamma1 = 0
-gamma2 = 3
-bcs = [gamma1, gamma2]
+
+#defining exact solution to test code on
+def u(x,a, b, gamma1, gamma2):
+    return ((gamma2 - gamma1) / (b-a)) * (x-a) + gamma1
+
+
+#number of finite grid points (minus one)
+N = 20
+
+#problem parameters -- these need to be varied but what are the limits???
+#test with different values of a, b, gamma1, gamma2
+#starting with 0,1,0,1 for simplicity
 a = 0
-b = -0.5
-dx = (gamma2 - gamma1) / N  # grid spacing
-x = np.linspace(gamma1, gamma2, N + 1)  # grid points
-u0 = np.zeros(N + 1)  # initial guess
+b = 1
 
-def func(u, bcs, dx, N):
-    F = np.zeros(N + 1)
-    F[0] = (u[1] - 2 * u[0] + bcs[0]) / dx ** 2
+gamma1 = 0.0
+gamma2 = 1.0
 
-    for i in range(1, N - 1):
-        F[i] = (u[i + 1] - 2 * u[i] + u[i - 1]) / dx ** 2
+#creating the grid of finite points
+x = np.linspace(a,b,N+1)
+dx = (b-a) / N
 
-    F[N] = (bcs[1] - 2 * u[N] + u[N - 1]) / dx ** 2
+#extracting the interior points
+x_int = x[1:-1]
+
+
+#define function LHS of problem to solve
+def dirichlet_problem(u, N, dx, gamma1, gamma2):
+    func = np.zeros(N-1)
+
+    func[0] = (u[1] - 2*u[0] + gamma1) / dx**2
+
+    for i in range(1, N-2):
+        func[i] = (u[i+1] - 2 * u[i] + u[i-1]) / dx**2
+    
+    func[N-2] = (gamma2 - 2 * u[N-2] + u[N-3]) / dx**2
+
+    return func
+
+def func_source_term(u, N, dx, gamma1, gamma2, f):
+    bcs = [gamma1, gamma2]
+    F = np.zeros(N - 1)
+    F[0] = (u[1] - 2 * u[0] + bcs[0]) / dx ** 2 - f[0]
+
+    for i in range(1, N - 2):
+        F[i] = (u[i + 1] - 2 * u[i] + u[i - 1]) / dx ** 2 - f[i]
+
+    F[N-2] = (bcs[1] - 2 * u[N-2] + u[N - 3]) / dx ** 2 - f[N-2]
 
     return F
 
-sol = root(func, u0, args=(bcs, dx, N))
+#setting initial guess --- what do we want to multiply x_int by?
+u_guess =  0.2 * x_int
 
-def exact_sol(x):
-    return ((gamma2 - gamma1) / (b - a)) * (x - a) + gamma1
+#solve the problem using root & print message to indicate success
+sol = root(func_source_term, u_guess, args=(N, dx, gamma1, gamma2, np.sin(x_int)))
 
+# solution at the interior grid points
+u_int = sol.x
 
-plt.plot(x, sol.x, label="Numerical solution")
-plt.plot(x, exact_sol(x), label="Exact solution")
+u_true = u(x, a, b, gamma1, gamma2)
+
+#plot numerical solution
+
+plt.plot(x_int, u_int, '.', label="Numerical solution")
+plt.plot(x, u_true, 'k', label='Exact solution')
+
+plt.xlabel(f'$x$')
+plt.ylabel(f'$u(x)$')
 plt.legend()
-plt.show()
-
-#%% q2
-
-def generate_tridiagonal_matrix(N, a, b, c):
-    A = np.zeros((N, N))
-    for i in range(N):
-        A[i, i] = b
-        if i > 0:
-            A[i, i - 1] = a
-        if i < N - 1:
-            A[i, i + 1] = c
-    return A
-
-
-## OTHER ATTEMPT
-
-def generate_tridiagonal_matrix(N, dx, dt, alpha):
-    r = alpha*dt/(dx*dx) 
-    A = np.zeros((N, N))# 
-    b = np.zeros(N)
-    for i in range(1, N-1):
-        A[i, i-1] = -r
-        A[i, i] = 1 + 2*r
-        A[i, i+1] = -r
-    A[0, 0] = 1
-    A[N-1, N-1] = 1
-    b[0] = 0
-    b[N-1] = 0
-    return A, b
-
-def solve_diffusion_equation(u0, N, dx, dt, alpha, T):
-    u = u0.copy()
-    for n in range(int(T/dt)):
-        A, b = generate_tridiagonal_matrix(N, dx, dt, alpha)
-        u = np.linalg.solve(A, u + b)
-    return u
-
-# Example usage
-N = 101
-dx = 0.01
-dt = 0.001
-alpha = 0.1
-T = 1.0
-x = np.linspace(0, 1, N)
-u0 = np.sin(np.pi*x)
-u = solve_diffusion_equation(u0, N, dx, dt, alpha, T)
-
-# Plot the solution
-import matplotlib.pyplot as plt
-plt.plot(x, u)
-plt.xlabel('x')
-plt.ylabel('u')
 plt.show()
