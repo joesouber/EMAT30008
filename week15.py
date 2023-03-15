@@ -114,6 +114,7 @@ def shooting(ode, u0, pc, solver, *args):
 
     G = shootingG(ode)
     orbit = solver(G, u0, args=(pc, *args))
+    print(orbit)
     return orbit
 
 
@@ -214,9 +215,9 @@ def main():
     def pc_predator_prey(u0, args):
         return predator_prey(0, u0, args)[0]
     
-    predator_prey_u0 = np.array([0.07, 0.16, 23])
+    predator_prey_u0 = np.array([0.3, 0.3, 30])
     
-    args = [1, 0.1, 0.1]
+    args = [1, 0.2, 0.1]
     tArr = np.linspace(0, 1000, 1000)
     t = np.linspace(0, 1000, 1000)
     predator_prey_solution = solve_ivp(predator_prey, [tArr[0], tArr[-1]], predator_prey_u0[:-1], method='RK45', args=(args,))
@@ -243,3 +244,4 @@ def main():
 main()
 
     
+# %%
