@@ -1,0 +1,21 @@
+import numpy as np
+from scipy.optimize import fsolve
+import matplotlib.pyplot as plt
+
+def cubic_function(x,c):
+    return x**3 - x + c
+
+def numerical_continuation(f, x0,c):
+    solution = []
+    x = x0
+    for i in c:
+        u = fsolve(f, x,args=(i,))
+        solution.append(u[0])
+        x = u[0]
+    return np.array(solution)
+c= np.linspace(-2,2,100)
+numerical_continuation(cubic_function, 1, c)
+
+solutions = numerical_continuation(cubic_function, 0, c)
+plt.plot(c,solutions)
+plt.show()
