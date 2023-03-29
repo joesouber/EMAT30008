@@ -1,3 +1,4 @@
+#%%
 import matplotlib.pyplot as plt
 import math
 import numpy as np
@@ -78,3 +79,35 @@ def solve_ode(ODE, x0, t0, t1, method_name, deltat_max, second_order, *args):
         X[i + 1] = solve_to(ODE, X[i], T[i], T[i + 1], method, deltat_max, *args)
 
     return X, T
+#%% need to test against the given ODEs, this should be in Jupyter notebook. 
+
+def main():
+
+    def f(x, t):
+        return np.array([x])
+
+    def FO_true_solution(t):
+        return np.exp(t)
+
+    method = 'euler'
+    FO_euler, FO_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
+
+    plt.plot(FO_time, FO_euler, label='Euler')
+
+   
+    method = 'RK4'
+    FO_RK4, FO_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
+    
+
+    plt.plot(FO_time, FO_RK4, label='RK4', linestyle='--')
+
+
+    plt.plot(FO_time, FO_true_solution(FO_time), label='True', linestyle='--')
+
+    plt.xlabel('t')
+    plt.ylabel('x')
+    plt.legend()
+    plt.show()
+# %%
+main()
+# %%
