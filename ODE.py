@@ -34,3 +34,47 @@ def heun_step(f, x0, t0, h, *args):
     t1 = t0 + h
 
     return x1, t1
+
+
+def solve_to(f, x1, t1, t2, method, deltat_max, *args):
+    while t1 < t2:
+        h = min(deltat_max, t2 - t1)
+        x1, t1 = method(f, x1, t1, h, *args)
+    return x1
+
+
+
+def solve_ode(ODE, x0, t0, t1, method_name, deltat_max, second_order, *args):
+
+    if method_name == 'euler':
+        method = euler_step
+    elif method_name == 'RK4':
+        method = RK4_step
+    elif method_name == 'heun':
+        method = heun_step
+    else:
+        raise ValueError(
+            f"The method '{method_name}' is not accepted, please try 'euler' or 'RK4'")
+
+    number_steps = math.ceil(abs(t1 - t0) / deltat_max)
+
+    
+    if second_order:
+        X = np.zeros((number_steps + 1, len(x0)))
+    else:
+        X = np.zeros((number_steps + 1, 1))
+
+    T = np.zeros(number_steps + 1)
+    X[0] = x0
+    T[0] = t0
+
+    for i in range(number_steps):
+
+        if T[i] + deltat_max < t1:
+            T[i + 1] = T[i] + deltat_max
+        else:
+            T[i + 1] = t1
+        
+        X[i + 1] = solve_to(ODE, X[i], T[i], T[i + 1], method, deltat_max, *args)
+
+    return X, T
