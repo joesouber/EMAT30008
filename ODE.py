@@ -187,5 +187,7 @@ def main():
 # %%
 #main()
 
-plot_error(f, f_true_solution, x0, t0, t1, h_list)
+plot_error(f, f_true_solution)
 
+
+# %%
