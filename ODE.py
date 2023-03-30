@@ -113,7 +113,7 @@ def calculate_error(ODE, true_solution, x0, t0, t1, method_name, deltat_list,sys
 
 
 
-def plot_error_new(ODE,ODE_true):
+def plot_error(ODE,ODE_true):
 
     deltat_list = [0.1, 0.05, 0.01, 0.005, 0.001]
 
