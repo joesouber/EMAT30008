@@ -1,7 +1,9 @@
 #%%
+import sys
 import matplotlib.pyplot as plt
 import math
 import numpy as np
+from scipy.integrate import solve_ivp
 
 def euler_step(f, x0, t0, h, *args):
 
@@ -47,11 +49,11 @@ def solve_to(f, x1, t1, t2, method, deltat_max, *args):
 
 def solve_ode(ODE, x0, t0, t1, method_name, deltat_max, second_order, *args):
 
-    if method_name == 'euler':
+    if method_name == 'Euler':
         method = euler_step
     elif method_name == 'RK4':
         method = RK4_step
-    elif method_name == 'heun':
+    elif method_name == 'Heun':
         method = heun_step
     else:
         raise ValueError(
@@ -79,6 +81,9 @@ def solve_ode(ODE, x0, t0, t1, method_name, deltat_max, second_order, *args):
         X[i + 1] = solve_to(ODE, X[i], T[i], T[i + 1], method, deltat_max, *args)
 
     return X, T
+
+
+
 #%% need to test against the given ODEs, this should be in Jupyter notebook. 
 
 def main():
@@ -89,20 +94,20 @@ def main():
     def FO_true_solution(t):
         return np.exp(t)
 
-    method = 'euler'
-    FO_euler, FO_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
-
-    plt.plot(FO_time, FO_euler, label='Euler')
-
-   
-    method = 'RK4'
-    FO_RK4, FO_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
     
+    method = 'Euler'
+    f_euler, f_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
+    plt.plot(f_euler, f_time, label='Euler')
 
-    plt.plot(FO_time, FO_RK4, label='RK4', linestyle='--')
+    method = 'RK4'
+    f_RK4, f_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
+    plt.plot(f_RK4, f_time, label='RK4', linestyle='--')
 
+    method = 'Heun'
+    f_heun, f_time = solve_ode(f, 1, 0, 1, method, 0.01, False)
+    plt.plot(f_heun, f_time, label='Heun')
 
-    plt.plot(FO_time, FO_true_solution(FO_time), label='True', linestyle='--')
+    plt.plot(f_time, FO_true_solution(f_time), label='True', linestyle='--')
 
     plt.xlabel('t')
     plt.ylabel('x')
