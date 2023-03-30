@@ -185,9 +185,3 @@ def main():
 
 
 # %%
-#main()
-
-plot_error(f, f_true_solution)
-
-
-# %%
