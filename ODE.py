@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 from ODE_PDE_funcs import f, f_true_solution
+from checks import check_inputs_ODE
 
 def euler_step(f, x0, t0, h, *args):
 
@@ -45,8 +46,9 @@ def solve_to(f, x1, t1, t2, method, h, *args):
     return x1
 
 
-
 def solve_ode(ODE, x0, t0, t1, method_name, h, system, *args):
+    
+    check_inputs_ODE(ODE, x0, t0, t1, method_name, h, system, *args)
     
     if method_name == 'euler':
         method = euler_step
@@ -73,6 +75,8 @@ def solve_ode(ODE, x0, t0, t1, method_name, h, system, *args):
             T[i + 1] = t1
         X[i + 1] = solve_to(ODE, X[i], T[i], T[i + 1], method, h, *args)
     return X, T
+
+
 
 def calculate_error(ODE, true_solution, x0, t0, t1, method_name, deltat_list,system, *args):
     """
@@ -183,5 +187,7 @@ def main():
     plt.legend()
     
 
+
+main()# %%
 
 # %%
