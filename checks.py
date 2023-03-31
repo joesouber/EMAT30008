@@ -32,5 +32,5 @@ def check_solution_accuracy(X, T, f_true_solution, rtol=1e-6, atol=1e-6):
     Returns:
     (bool): True if the numerical solution is close to the true solution, False otherwise.
     """
-    X_true = np.array([f_true_solution(t) for t in T])
+    X_true = f_true_solution(T) 
     return np.allclose(X, X_true, rtol=rtol, atol=atol)
