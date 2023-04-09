@@ -68,7 +68,7 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         return errors
 
     # Calculate the errors for the three methods using the given parameters
-    errors = calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args)
+    errors = calculate_error()
 
     # Plot the errors for the three methods
     plt.figure()
