@@ -80,62 +80,10 @@ def solve_ode(f, x0, t_eval, max_step, method, system, *pars):
 
 
 
-def calculate_error(ODE, true_solution, x0, t0, t1, method_name, deltat_list,system, *args):
-    """
-    Calculates the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
-    for different timesteps.
-
-    Args:
-        ODE (function): The ODE to be solved.
-        true_solution (function): The true solution of the ODE.
-        x0 (float): The initial value of x.
-        t0 (float): The initial value of t.
-        t1 (float): The final value of t.
-        method_name (str): The name of the numerical method to be used. Must be 'Euler', 'RK4' or 'Heun'.
-        deltat_list (list): A list of timesteps to use.
-        args: Additional arguments for the ODE function.
-
-    Returns:
-        Tuple: Two lists containing the timesteps used and the corresponding errors.
-    """
-    if method_name == 'euler':
-        method = euler_step
-    elif method_name == 'RK4':
-        method = RK4_step
-    elif method_name == 'heun':
-        method = heun_step
-    else:
-        raise ValueError(f"The method '{method_name}' is not accepted, please try 'euler','RK4'or 'heun'")
-
-    errors = []
-    timesteps = []
-    for deltat in deltat_list:
-        approx_solution, t = solve_ode(ODE, x0, t0, t1, method_name, deltat, system, *args)
-        true_values = true_solution(t)
-        errors.append(np.abs(approx_solution.flatten() - true_values.flatten()).max())
-        timesteps.append(deltat)
-    
-    return timesteps, errors
 
 
 
-def plot_error(ODE,ODE_true):
 
-    deltat_list = [0.1, 0.05, 0.01, 0.005, 0.001]
-    #deltat_list = [0.1, 0.2, 0.3, 0.4, 0.5]
-
-    timesteps_euler, errors_euler = calculate_error(ODE, ODE_true, 1, 0, 1, 'euler', deltat_list,False)
-    timesteps_rk4, errors_rk4 = calculate_error(ODE, ODE_true, 1, 0, 1, 'RK4', deltat_list,False)
-    timesteps_heun, errors_heun = calculate_error(ODE, ODE_true, 1, 0, 1, 'heun', deltat_list,False)
-
-    plt.loglog(timesteps_euler, errors_euler, 'o-', label='Euler')
-    plt.loglog(timesteps_rk4, errors_rk4, 'o-', label='RK4')
-    plt.loglog(timesteps_heun, errors_heun, 'o-', label='Heun')
-    plt.xlabel('Timestep')
-    plt.ylabel('Error')
-    plt.legend()
-    plt.title('Errors for Numerical Methods')
-    plt.show()
 
 
 
