@@ -17,20 +17,3 @@ def check_inputs_ODE(ODE, x0, t0, t1, method_name, h, system, *args):
     if not isinstance(system, bool):
         raise TypeError("system must be a boolean")
 
-
-def check_solution_accuracy(X, T, f_true_solution, rtol=1e-6, atol=1e-6):
-    """
-    Check the accuracy of the numerical solution by comparing it to the true solution.
-    
-    Parameters:
-    X (ndarray): The numerical solution array of shape (n_steps+1, n), where n is the number of variables in the system.
-    T (ndarray): The time array of shape (n_steps+1,) corresponding to the numerical solution.
-    f_true_solution (callable): The function that computes the true solution.
-    rtol (float): The relative tolerance parameter for np.allclose.
-    atol (float): The absolute tolerance parameter for np.allclose.
-    
-    Returns:
-    (bool): True if the numerical solution is close to the true solution, False otherwise.
-    """
-    X_true = f_true_solution(T) 
-    return np.allclose(X, X_true, rtol=rtol, atol=atol)
