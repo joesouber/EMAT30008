@@ -5,7 +5,7 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import numdifftools as nd
-from ODE import solve_ode, solve_to
+from ODE import solve_ode
 #%%
 def pred_prey_eq(X, pars):
   
