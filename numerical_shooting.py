@@ -5,7 +5,8 @@ import numpy as np
 from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 import numdifftools as nd
-
+from ODE import solve_ode, solve_to
+#%%
 def pred_prey_eq(X, pars):
   
     x = X[0]
@@ -83,16 +84,21 @@ def shooting(ode, u0, pc, solver, *args):
     print(orbit)
     return orbit
 
-def shootingG(ode):
-    def G(x0, pc, *args):
+def shootingG(f):
+    def G(u0_T, pc, *pars):
         def F(u0, T):
-            tArr = np.linspace(0, T, 1000)
-            sol = solve_ivp(ode, t_span=(0, T), y0=u0, method='RK45', args=tuple(args))
-            return sol.y[:, -1]
-        T = x0[-1]
-        u0 = x0[:-1]
-        g = np.append(u0 - F(u0, T), pc(u0, *args))  # Constructs array of ((initial guess - solution, phase condition)
-        return g
+            # Create a list of time values to solve over
+            t_eval = np.linspace(0, T, 1000)
+            sol =solve_ode(f, u0, t_eval, 0.01, 'RK4', True, *pars) 
+            # Extract the final solution value
+            final_sol = sol[:, -1]
+
+            # return the final solution value
+            return final_sol
+        # Extract the inputted time and initial values
+        T = u0_T[-1]
+        u0= u0_T[:-1]
+        return np.append(u0 - F(u0, T), pc(u0, *pars))
     return G
 
 #%%
@@ -138,7 +144,7 @@ def main():
     shooting_orbit = shooting(predator_prey, predator_prey_u0, pc_predator_prey, fsolve, args)
     
     plt.plot(shooting_orbit[0], shooting_orbit[1], 'ro', label="Numerical Shooting Orbit")
-    plt.plot(predator_prey_solution_x, predator_prey_solution_y)
+    plt.plot(predator_prey_solution_x, predator_prey_solution_y,linestyle='dashed', label='ODE')
     plt.ylabel('y')
     plt.xlabel('x')
     plt.legend()
@@ -175,4 +181,5 @@ t = np.linspace(0, 1000, 1000)
 
 
 shooting(predator_prey, predator_prey_u0, pc_predator_prey, fsolve, args)
+
 # %%
