@@ -80,4 +80,3 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
     plt.title('Errors for Numerical Methods')
     plt.legend()
     plt.show()
-    
