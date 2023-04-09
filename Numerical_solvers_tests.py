@@ -6,39 +6,7 @@ import numpy as np
 from numerical_shooting import shooting
 from scipy.optimize import fsolve
 #%%
-
-
-class TestODESolver(unittest.TestCase):
-    
-    def test_euler_solver(self):
-        # Test the Euler method solver on a simple ODE
-        x0 = 1
-        t0 = 0
-        t1 = 1
-        h = 0.1
-        X, T = solve_ode(f, x0, t0, t1, 'euler', h, False)
-        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-3)
-    
-    def test_RK4_solver(self):
-        # Test the Runge-Kutta 4 method solver on a simple ODE
-        x0 = 1
-        t0 = 0
-        t1 = 1
-        h = 0.1
-        X, T = solve_ode(f, x0, t0, t1, 'RK4', h, False)
-        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-8)
-    
-    def test_heun_solver(self):
-        # Test the Heun method solver on a simple ODE
-        x0 = 1
-        t0 = 0
-        t1 = 1
-        h = 0.1
-        X, T = solve_ode(f, x0, t0, t1, 'heun', h, False)
-        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-8)
-        
-
-    def calculate_error(f, true_sol, x0, t0, t1, dt_list, *args):
+def calculate_error(f, true_sol, x0, t0, t1, dt_list, *args):
         """
         Calculate the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
         for different timesteps.
@@ -80,6 +48,37 @@ class TestODESolver(unittest.TestCase):
             errors['heun'].append(np.abs(X_heun - X_true)[-1])
 
         return errors
+
+class TestODESolver(unittest.TestCase):
+    
+    def test_euler_solver(self):
+        # Test the Euler method solver on a simple ODE
+        x0 = 1
+        t0 = 0
+        t1 = 1
+        h = 0.1
+        X, T = solve_ode(f, x0, t0, t1, 'euler', h, False)
+        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-3)
+    
+    def test_RK4_solver(self):
+        # Test the Runge-Kutta 4 method solver on a simple ODE
+        x0 = 1
+        t0 = 0
+        t1 = 1
+        h = 0.1
+        X, T = solve_ode(f, x0, t0, t1, 'RK4', h, False)
+        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-8)
+    
+    def test_heun_solver(self):
+        # Test the Heun method solver on a simple ODE
+        x0 = 1
+        t0 = 0
+        t1 = 1
+        h = 0.1
+        X, T = solve_ode(f, x0, t0, t1, 'heun', h, False)
+        self.assertTrue(np.abs(X[-1]-f_true_solution(T)) < 10**-8)
+        
+
 
 
 
