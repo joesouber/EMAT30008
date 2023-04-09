@@ -24,7 +24,7 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         Extra arguments to be passed to `f` and `true_sol`.
 
     """
-    def calculate_error():
+    def calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         """
         Calculate the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
         for different timesteps.
@@ -68,7 +68,7 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         return errors
 
     # Calculate the errors for the three methods using the given parameters
-    errors = calculate_error()
+    errors = calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args)
 
     # Plot the errors for the three methods
     plt.figure()
