@@ -1,0 +1,88 @@
+from scipy.optimize import fsolve
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.integrate import solve_ivp
+
+
+
+def plot_solutions(ode,pc,u0,args=(), max_step=0.01):
+    
+    def shooting(ode, u0, pc, solver, **params):
+        G = shootingG(ode)
+        orbit = solver(G, u0,pc, **params)
+        print(orbit)
+        return orbit
+
+    def shootingG(ode):
+        def G(x0, pc, **params):
+            def F(u0, T):
+                tArr = np.linspace(0, T, 1000)
+                sol = solve_ivp(ode, t_span=(0, T), y0=u0, method='RK45', **params)
+                return sol.y[:, -1]
+            T = x0[-1]
+            u0 = x0[:-1]
+            g = np.append(u0 - F(u0, T), pc(u0, **params))  # Constructs array of ((initial guess - solution, phase condition)
+            return g
+        return G
+    
+    shooting_output = shooting(ode,u0, pc, fsolve)
+    t_span = [0, shooting_output[-1]]
+    # Extract the final time and initial guess from the shooting output
+    T, u0 = shooting_output[-1], shooting_output[:-1]
+
+    # Solve the ODE using solve_ivp with the initial guess from the shooting method
+    sol = solve_ivp(ode, t_span=t_span, y0=u0, method='RK45', args=args, max_step=max_step)
+
+    # Extract the predator and prey populations from the solution
+    predator = sol.y[0]
+    prey = sol.y[1]
+
+    # Plot the predator and prey populations against time
+    plt.plot(sol.t, predator, label='Predator')
+    plt.plot(sol.t, prey, label='Prey')
+
+    # Add labels and a legend
+    plt.xlabel('Time')
+    plt.ylabel('Population')
+    plt.legend()
+
+## main
+
+#%% Plots for Q1, might be useful for Jupyter.
+import numpy as np
+from scipy.integrate import solve_ivp
+import matplotlib.pyplot as plt
+import numdifftools as nd
+from ODE import solve_ode
+#%%
+def pred_prey_eq(X, pars):
+  
+    x = X[0]
+    y = X[1]
+    a, b, d = pars[0], pars[1], pars[2]
+    dxdt = x * (1 - x) - (a * x * y) / (d + x)
+    dydt = b * y * (1 - (y / x))
+    return np.array([dxdt, dydt])
+
+## simulating pred/prey equations uysing scipy solve_ivp. Should be able to switch this out for one of my functions eventually.
+
+a = 1
+d = 0.1
+bs = [0.1,0.5]
+
+
+def pred_prey_plot(a,d,bs):
+    for b in bs:
+        pars = [a, b, d]
+        X0 = [0.5, 0.5]
+        t_eval = np.linspace(0, 200, 3000)
+        sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
+
+
+        plt.plot(sol.t, sol.y[0], label='Predator population')
+        plt.plot(sol.t, sol.y[1], label='Prey population')
+        plt.legend()
+        plt.xlabel('Time')
+        plt.ylabel('Population')
+        plt.show()
+#pred_prey_plot(a,d,bs)
