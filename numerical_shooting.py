@@ -23,23 +23,23 @@ d = 0.1
 bs = [0.1,0.5]
 
 
+def pred_prey_plot(a,d,bs):
+    for b in bs:
+        pars = [a, b, d]
+        X0 = [0.5, 0.5]
+        t_eval = np.linspace(0, 200, 3000)
+        sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
 
-for b in bs:
-    pars = [a, b, d]
-    X0 = [0.5, 0.5]
-    t_eval = np.linspace(0, 200, 1000)
-    sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
 
-
-    plt.plot(sol.t, sol.y[0], label='Predator population')
-    plt.plot(sol.t, sol.y[1], label='Prey population')
-    plt.legend()
-    plt.xlabel('Time')
-    plt.ylabel('Population')
-    plt.show()
+        plt.plot(sol.t, sol.y[0], label='Predator population')
+        plt.plot(sol.t, sol.y[1], label='Prey population')
+        plt.legend()
+        plt.xlabel('Time')
+        plt.ylabel('Population')
+        plt.show()
 
 #To isolate a periodic orbit, we need to look for a closed trajectory in the phase space of the predator-prey system. One way to do this is to plot the phase portrait of the system, which shows the direction of motion of the system's trajectories. We can then identify any closed trajectories, which correspond to periodic orbits.
-
+#%%
 a = 1
 d = 0.1
 b= 0.5
