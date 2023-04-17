@@ -55,28 +55,15 @@ import matplotlib.pyplot as plt
 import numdifftools as nd
 from ODE import solve_ode
 #%%
-def pred_prey_eq(X, pars):
-  
-    x = X[0]
-    y = X[1]
-    a, b, d = pars[0], pars[1], pars[2]
-    dxdt = x * (1 - x) - (a * x * y) / (d + x)
-    dydt = b * y * (1 - (y / x))
-    return np.array([dxdt, dydt])
-
-## simulating pred/prey equations uysing scipy solve_ivp. Should be able to switch this out for one of my functions eventually.
-
-a = 1
-d = 0.1
-bs = [0.1,0.5]
 
 
-def pred_prey_plot(a,d,bs):
+
+def pred_prey_plot(a,d,bs,f):
     for b in bs:
         pars = [a, b, d]
         X0 = [0.5, 0.5]
         t_eval = np.linspace(0, 200, 3000)
-        sol = solve_ivp(lambda t, X: pred_prey_eq(X, pars), [0, 200], X0, t_eval=t_eval)
+        sol = solve_ivp(lambda t, X: f(X, pars), [0, 200], X0, t_eval=t_eval)
 
 
         plt.plot(sol.t, sol.y[0], label='Predator population')
@@ -86,3 +73,20 @@ def pred_prey_plot(a,d,bs):
         plt.ylabel('Population')
         plt.show()
 #pred_prey_plot(a,d,bs)
+
+def shooting_generalised(f):
+    def G(u0_T, pc, *pars):
+        def F(u0, T):
+            # Create a list of time values to solve over
+            t_eval = np.linspace(0, T, 1000)
+            sol =solve_ode(f, u0, t_eval, 0.01, 'RK4', True, *pars) 
+            # Extract the final solution value
+            final_sol = sol[:, -1]
+
+            # return the final solution value
+            return final_sol
+        # Extract the inputted time and initial values
+        T = u0_T[-1]
+        u0= u0_T[:-1]
+        return np.append(u0 - F(u0, T), pc(u0, *pars))
+    return G
