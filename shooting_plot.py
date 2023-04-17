@@ -72,6 +72,7 @@ def pred_prey_plot(a,d,bs,f):
         plt.xlabel('Time')
         plt.ylabel('Population')
         plt.show()
+
 #pred_prey_plot(a,d,bs)
 
 def shooting_generalised(f):
