@@ -49,3 +49,16 @@ def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100):
     
     tridiag_mat = diags(diagonals, offset, format='csr')
     return tridiag_mat
+
+
+def explicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    mat1 = (identity(pde_sol.shape[0]) + tridiag)
+    mat2= (pde_sol[:,time_step])
+    b = (mat1).dot(mat2)
+    delta_t = T / mt
+    b += delta_t * source_term(x , t[time_step])
+    pde_sol[:, time_step+1] = apply_bc(b, time_step, Boundary_Cond, L, t, Boundary_type)
+    
+    return pde_sol
