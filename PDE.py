@@ -1,4 +1,4 @@
-#%%
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import diags, identity
@@ -157,6 +157,5 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
         pde_sol = discretisation(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term, linearity=linearity)
 
     return pde_sol, t
-#%%import numpy as np
 
-# %%
+
