@@ -1,3 +1,4 @@
+#%%
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import diags, identity
@@ -112,3 +113,50 @@ def crank_nicholson(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D
     pde_sol[:,time_step+1] = spsolve(cn_mat2, b)
 
     return pde_sol
+
+def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, discretisation, source_term = lambda x,t:0, D = 0.1, linearity='linear'):
+   
+
+
+    delta_x = L / mx
+    delta_t = T / mt
+
+# Create arrays of mesh points in space and time
+    x = np.arange(0, L+delta_x, delta_x)
+    t = np.arange(0, T+delta_t, delta_t)    
+
+    euler_flag = D*delta_t/(delta_x**2)
+
+    # initialise the solution matrix
+    pde_sol = np.zeros(shape=(len(x), len(t)))
+    
+    if linearity == 'nonlinear' and discretisation != 'beuler':
+        raise ValueError("Nonlinear equations can only be solved using the Backward Euler method.")
+    if discretisation == 'feuler':
+        # Checks if solver will be stable with this lambda value
+        if (euler_flag > 0.5):
+            raise ValueError('Euler flag greater than 0.5, Explicit euler will break down.')
+        discretisation = explicit_euler
+    elif discretisation == 'beuler':
+        discretisation = implicit_euler
+    elif discretisation == 'cn':
+        discretisation = crank_nicholson
+    else:
+        raise ValueError('Please choose from Explicit Euler,Implicit Euler,CN')
+
+    # Get initial conditions and apply
+    #for i in range(len(x)):
+        #pde_sol[i,0] = IC(x[i], L)
+    pde_sol[:, 0] = np.vectorize(Initial_C)(x, L)
+    
+    
+
+    for time_step in range(0, mt):
+
+        # Carry out solver step, including the boundaries
+        pde_sol = discretisation(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term, linearity=linearity)
+
+    return pde_sol, t
+#%%import numpy as np
+
+# %%

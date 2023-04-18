@@ -8,6 +8,10 @@ from scipy.integrate import solve_ivp
 def plot_solutions(ode,pc,u0,args=(), max_step=0.01):
     
     def shooting(ode, u0, pc, solver, **params):
+        assert callable(ode), "Error: 'ode' argument must be callable."
+        #assert isinstance(u0, list) , "Error: 'u0' argument must be a list "
+        assert callable(pc), "Error: 'pc' argument must be callable."
+        assert callable(solver), "Error: 'solver' argument must be callable."
         G = shootingG(ode)
         orbit = solver(G, u0,pc, **params)
         print(orbit)
@@ -15,16 +19,20 @@ def plot_solutions(ode,pc,u0,args=(), max_step=0.01):
 
     def shootingG(ode):
         def G(x0, pc, **params):
+            assert isinstance(x0, np.ndarray) and x0.ndim == 1, "Error: 'x0' argument must be a 1D numpy array."
+            assert x0.size >= 2, "Error: 'x0' argument must have at least 2 elements."
+            assert callable(pc), "Error: 'pc' argument must be callable."
             def F(u0, T):
                 tArr = np.linspace(0, T, 1000)
                 sol = solve_ivp(ode, t_span=(0, T), y0=u0, method='RK45', **params)
                 return sol.y[:, -1]
             T = x0[-1]
             u0 = x0[:-1]
-            g = np.append(u0 - F(u0, T), pc(u0, **params))  # Constructs array of ((initial guess - solution, phase condition)
+            assert isinstance(T, float) or isinstance(T, int), "Error: 'T' argument must be a float or an integer."
+            g = np.append(u0 - F(u0, T), pc(u0, **params))
+            assert isinstance(g, np.ndarray) and g.ndim == 1, "Error: 'g' must be a 1D numpy array."
             return g
         return G
-    
     shooting_output = shooting(ode,u0, pc, fsolve)
     t_span = [0, shooting_output[-1]]
     # Extract the final time and initial guess from the shooting output
