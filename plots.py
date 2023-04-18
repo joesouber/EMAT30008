@@ -1,8 +1,10 @@
 #%%
-from matplotlib import pyplot as plt
+
 import numpy as np
 from ODE import solve_ode
-
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+#ODE
 def calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         """
         Calculate the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
@@ -84,5 +86,50 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
     plt.legend()
     plt.show()
 
+#PDE
+def plot_comparison(u, t, L, D,u_exact):
+    '''
+    Plots the numerical and exact solutions of a given PDE at midway through the time interval.
+    
+    Inputs:
+    u: numpy array containing the numerical solution
+    t: numpy array containing the time steps used in the solution
+    L: length of the spatial domain
+    D: diffusion coefficient
+    
+    Outputs:
+    None (displays a plot)
+    '''
+
+    
+    # Select a time step to plot
+    t_plot = t[-1] /2
+    
+    # Calculate the exact solution at the selected time step
+    x = np.linspace(0, L, len(u))
+    exact_solution = u_exact(x, t_plot,D)
+    
+    # Plot the numerical and exact solutions
+    plt.plot(x, u[:, int(len(t) * t_plot / t[-1])], 'o', c='r', label='Numerical Solution')
+    plt.plot(x, exact_solution, label='Exact Solution')
+    plt.legend()
+    plt.show()
 
 
+
+def animate_solution(u, t, L):
+    fig, ax = plt.subplots()
+    x = np.linspace(0, L, u.shape[0])
+    line, = ax.plot(x, u[:, 0])
+    ax.set_xlim(0, L)
+    ax.set_ylim(np.min(u), np.max(u))
+    ax.set_title('Solution at t = {:.3f}'.format(t[0]))
+    ax.set_xlabel('x')
+    ax.set_ylabel('u')
+
+    def update(frame):
+        line.set_ydata(u[:, frame])
+        ax.set_title('Solution at t = {:.3f}'.format(t[frame]))
+
+    animation  = FuncAnimation(fig, update, frames=u.shape[1], interval=10, blit=False)
+    plt.show()
