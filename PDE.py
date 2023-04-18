@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse import diags, identity
 from scipy.sparse.linalg import spsolve
 from scipy.optimize import fsolve
+
 def apply_bc(pde_sol, time_step, Boundary_Cond, L, t, Boundary_type, CN = False,T=0.5,mt=1000,mx=100):
     delta_t = T / mt
 
@@ -61,4 +62,53 @@ def explicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,
     b += delta_t * source_term(x , t[time_step])
     pde_sol[:, time_step+1] = apply_bc(b, time_step, Boundary_Cond, L, t, Boundary_type)
     
+    return pde_sol
+
+def implicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+
+
+    delta_t = T / mt
+    
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    n, _ = pde_sol.shape
+    tridiag_identity_matrix = identity(n)-tridiag
+
+    if linearity == 'linear':
+        b = pde_sol.take(time_step, axis=1) + delta_t * source_term(x, t[time_step + 1])
+        pde_sol[:, time_step + 1] = apply_bc(spsolve(tridiag_identity_matrix, b), time_step + 1, Boundary_Cond, L, t, Boundary_type)
+
+    elif linearity == 'nonlinear':
+
+        delta_t = T / mt
+        delta_x = L / mx
+        r = delta_t / (delta_x**2 * D)
+    
+        tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+        n, _ = pde_sol.shape
+        tridiag_identity_matrix = identity(n) - r * tridiag
+    
+        b = pde_sol[:, time_step] + delta_t * source_term(pde_sol[:, time_step], x, t[time_step + 1])
+        pde_sol[:, time_step + 1] = apply_bc(spsolve(tridiag_identity_matrix, b), time_step + 1, Boundary_Cond, L, t, Boundary_type)
+
+    return pde_sol
+
+def crank_nicholson(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+
+    delta_t = T / mt
+    
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    n, _ = pde_sol.shape #trying ', _' notation.
+    half_tridiag = 0.5*tridiag
+    Identity_matrix = identity(n)
+    
+    cn_mat1 = (Identity_matrix + half_tridiag) 
+    cn_mat2 = (Identity_matrix - half_tridiag) 
+
+    b = cn_mat1.dot(pde_sol[:, time_step]) + (delta_t/2) * (source_term(x, t[time_step]) + source_term(x, t[time_step+1]))
+    b = apply_bc(b, time_step, Boundary_Cond, L, t, Boundary_type, CN=True)
+
+
+
+    pde_sol[:,time_step+1] = spsolve(cn_mat2, b)
+
     return pde_sol
