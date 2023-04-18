@@ -107,7 +107,7 @@ def plot_comparison(u, t, L, D,u_exact):
     
     # Calculate the exact solution at the selected time step
     x = np.linspace(0, L, len(u))
-    exact_solution = u_exact(x, t_plot,D)
+    exact_solution = u_exact(x, t_plot,D,L)
     
     # Plot the numerical and exact solutions
     plt.plot(x, u[:, int(len(t) * t_plot / t[-1])], 'o', c='r', label='Numerical Solution')
