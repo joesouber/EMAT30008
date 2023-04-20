@@ -3,18 +3,25 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 from ODE_PDE_funcs import f, f_true_solution
-from checks import check_inputs_ODE
+from checks import *
 
 
 def euler_step(f, x0, t0, max_step, *pars):
 
+    check_callable(f)
+    check_numeric(x0, t0, max_step)
+    check_pars(pars)
 
     x1 = x0 + max_step * f(x0, t0, *pars)
     t1 = t0 + max_step
     return x1, t1
 
 def RK4_step(f, x0, t0, max_step, *pars):
-   
+    
+    check_callable(f)
+    check_numeric(x0, t0, max_step)
+    check_pars(pars)
+    
     k1 = f(x0, t0, *pars)
     k2 = f(x0 + max_step * 0.5 * k1, t0 + 0.5 * max_step, *pars)
     k3 = f(x0 + max_step * 0.5 * k2, t0 + 0.5 * max_step, *pars)
@@ -30,6 +37,11 @@ def RK4_step(f, x0, t0, max_step, *pars):
 
 
 def heun_step(f, x0, t0, max_step, *pars):
+
+    check_callable(f)
+    check_numeric(x0, t0, max_step)
+    check_pars(pars)
+    
     k1 = f(x0, t0, *pars)
     x1_tilde = x0 + max_step * k1
     k2 = f(x1_tilde, t0 + max_step, *pars)
@@ -57,7 +69,7 @@ def solve_to(f, x0, t0, t1, max_step, method='RK4', *pars):
 
 def solve_ode(f, x0, t_eval, max_step, method, system, *pars):
 
-#insert name check function.
+
 
 
     # Define the empty x array depending on size of x0 and t_eval
