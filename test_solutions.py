@@ -9,7 +9,7 @@ from scipy.integrate import odeint
 
 #%%
 #ode
-def test_solution(tolerance):
+def test_ode_output(tolerance):
     # Define the function to be solved
     def f(x, t):
         return x
@@ -33,7 +33,9 @@ def test_solution(tolerance):
         # Test the numerical solution against the true solution using allclose
          # set a tolerance value
         is_close = np.allclose(X[:,0], true_sol(t_eval), rtol=tolerance, atol=tolerance)
+        print('\n---------------------------------------\n')
         print(f"{method.upper()}: Numerical and exact solutions match closely: {is_close}")
+        print('\n---------------------------------------\n')
 
 #shooting
 #%%
@@ -65,7 +67,7 @@ def test_shooting_inputs():
 
     # Test with incorrect ODE output
     def incorrect_ode_output(t, y, args=[1, 0.1, 0.1]):
-        return y
+        return [y,'bad']
     try:
         plot_solutions(incorrect_ode_output, pc_predator_prey, u0)
         failed_tests.append("Test with incorrect ODE output did not raise an exception.")
@@ -106,17 +108,21 @@ def test_shooting_inputs():
         failed_tests.append("Test with incorrect step size type raised an  exception ")
 
     if len(failed_tests) == 0:
+        print('\n---------------------------------------\n')
         print("All tests passed!")
+        print('\n---------------------------------------\n')
     else:
         print('Some input tests failed:')
         for test in failed_tests:
+            print('\n---------------------------------------\n')
             print(test)
+            print('\n---------------------------------------\n')
 
 import numpy as np
 from scipy.integrate import solve_ivp
 #%%
 
-def test_shooting_generalised():
+def test_shooting_generalised_inputs():
     
     def normal_hopf(u0, t, beta):
 
@@ -181,11 +187,17 @@ def test_shooting_generalised():
 
 
     if len(failed_tests) > 0:
+        print('\n---------------------------------------\n')
         print("Some tests failed:")
+        print('\n---------------------------------------\n')
         for failed_test in failed_tests:
+            print('\n---------------------------------------\n')
             print(failed_test)
+            print('\n---------------------------------------\n')
     else:
+        print('\n---------------------------------------\n')
         print("All tests passed!")
+        print('\n---------------------------------------\n')
 
 
 
@@ -196,7 +208,7 @@ def test_shooting_generalised():
 #%%
 
 
-def test_shooting(tolerance):
+def test_shooting_output(tolerance):
     def normal_hopf(u0, t, beta):
 
     
@@ -234,13 +246,13 @@ def test_shooting(tolerance):
 
     assert np.allclose(u1_num, u1_exact, rtol=tolerance, atol=tolerance),"Error: Numerical and exact solutions do not match closely."
     assert np.allclose(u2_num, u2_exact, rtol=tolerance, atol=tolerance),"Error: Numerical and exact solutions do not match closely."
-    
+    print('\n---------------------------------------\n')
     print('Shooting method: Numerical and exact solutions match closely to the specified tolerance.')
-
+    print('\n---------------------------------------\n')
 
 if __name__ == '__main__':
-    test_solution(tolerance=1)
-    test_shooting(tolerance=1e-3)
+    test_ode_output(tolerance=1)
+    test_shooting_output(tolerance=1e-3)
     test_shooting_inputs()
-    test_shooting_generalised()
+    test_shooting_generalised_inputs()
 # %%
