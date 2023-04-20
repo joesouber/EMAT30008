@@ -4,21 +4,23 @@ def check_callable(f):
     if not callable(f):
         raise TypeError("Input function is not callable")
 
-def check_numeric(x0, t0, max_step):
-    if not isinstance(x0, (int, float)) or not isinstance(t0, (int, float)) or not isinstance(max_step, (int, float)):
+def check_numeric(x0, max_step):
+    if not isinstance(x0, (int, float)) or not isinstance(max_step, (int, float)):
         raise TypeError("Initial values and maximum step size must be numeric")
 
 def check_pars(pars):
     if not isinstance(pars, tuple):
         raise TypeError("Input parameters must be a tuple")
 
-def euler_step(f, x0, t0, max_step, *pars):
-    check_callable(f)
-    check_numeric(x0, t0, max_step)
-    check_pars(pars)
-    x1 = x0 + max_step * f(x0, t0, *pars)
-    t1 = t0 + max_step
-    return x1, t1
+
+# Output tests
+
+X = solve_ode(f, x0, t_eval, max_step, method, system)
+tolerance = 1e-9 # set a tolerance value
+
+# Compare the first 100 elements of X and true_sol(t_eval)
+is_close = np.allclose(X[:,0], true_sol(t_eval), rtol=tolerance, atol=tolerance)
+print(f"Numerical and exact solutions match closely: {is_close}")
 
 
 

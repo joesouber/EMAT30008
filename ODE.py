@@ -9,7 +9,7 @@ from checks import *
 def euler_step(f, x0, t0, max_step, *pars):
 
     check_callable(f)
-    check_numeric(x0, t0, max_step)
+    #check_numeric(x0, max_step)
     check_pars(pars)
 
     x1 = x0 + max_step * f(x0, t0, *pars)
@@ -19,7 +19,7 @@ def euler_step(f, x0, t0, max_step, *pars):
 def RK4_step(f, x0, t0, max_step, *pars):
     
     check_callable(f)
-    check_numeric(x0, t0, max_step)
+    #check_numeric(x0, max_step)
     check_pars(pars)
     
     k1 = f(x0, t0, *pars)
@@ -39,9 +39,9 @@ def RK4_step(f, x0, t0, max_step, *pars):
 def heun_step(f, x0, t0, max_step, *pars):
 
     check_callable(f)
-    check_numeric(x0, t0, max_step)
+    #check_numeric(x0, max_step)
     check_pars(pars)
-    
+
     k1 = f(x0, t0, *pars)
     x1_tilde = x0 + max_step * k1
     k2 = f(x1_tilde, t0 + max_step, *pars)
