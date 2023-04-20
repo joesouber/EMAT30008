@@ -113,15 +113,15 @@ def plot_hopf_shooting(sol, pc, beta,normal_hopf):
     u2 = np.sqrt(beta) * np.sin(t + theta)
     
     # Plot the analytical solutions.
-    plt.plot(t, u1, label='u1', linestyle='--')
-    plt.plot(t, u2, label='u2', linestyle='--')
+    plt.plot(t, u1, label='exact solution 1', linestyle='--')
+    plt.plot(t, u2, label='exact solution 2', linestyle='--')
     
     # Solve the system of equations using odeint.
     sol1 = odeint(normal_hopf, sol[:-1], t, args=(beta,))
     
     # Plot the numerical solutions.
-    plt.plot(t, sol1[:, 0], label='numerical-solution 1', linestyle=':')
-    plt.plot(t, sol1[:, 1], label='numsol2', linestyle=':')
+    plt.plot(t, sol1[:, 0], label='numerical solution 1', linestyle=':')
+    plt.plot(t, sol1[:, 1], label='numerical solution 2', linestyle=':')
     
     # Add labels and legend.
     plt.xlabel('t')
