@@ -4,9 +4,10 @@ import numpy as np
 from ODE import solve_ode
 import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
-from shooting_plot import shooting_generalised, plot_hopf_shooting
+from shooting_plot import shooting_generalised, plot_hopf_shooting,plot_solutions
 from scipy.integrate import odeint
-from plots import plot_solutions
+
+#%%
 #ode
 def test_solution(tolerance):
     # Define the function to be solved
@@ -36,7 +37,7 @@ def test_solution(tolerance):
 
 #shooting
 #%%
-def test_plot_solutions():
+def test_shooting_inputs():
     def predator_prey(t, y, args = [1, 0.1, 0.1]):
         x = y[0]
         y = y[1]
@@ -111,8 +112,82 @@ def test_plot_solutions():
         for test in failed_tests:
             print(test)
 
+import numpy as np
+from scipy.integrate import solve_ivp
+#%%
 
-test_plot_solutions()
+def test_shooting_generalised():
+    
+    def normal_hopf(u0, t, beta):
+
+    #beta = pars[0]
+        u1, u2 = u0[0], u0[1]
+
+        du1dt = beta * u1 - u2 - (u1) * (u1 ** 2 + u2 ** 2)
+        du2dt = u1 + beta * u2 - (u2) * (u1 ** 2 + u2 ** 2)
+        return np.array([du1dt, du2dt])
+
+
+# phase condition for the normal Hopf bifurcation (u1 gradient = 0)
+    def pc_normal_hopf(u0, pars):
+        return normal_hopf(u0, 0, pars)[0]
+
+# Solve the ODE system using the specified method and solver.
+    
+    failed_tests = []
+    u0_guess_hopfnormal = np.array([1.5, 0.1, 6.1])
+    pc = pc_normal_hopf
+    beta = 2
+    initial_pars0 = (pc, beta)
+
+    # Test for incorrect ODE output and size
+    def f1(u0, t, beta):
+        return np.array([beta, beta,beta])
+    
+    try:
+        sol = np.array(fsolve(shooting_generalised(f1), u0_guess_hopfnormal, args=initial_pars0))
+        failed_tests.append("Test 1 failed: incorrect ODE output and size did not raise an exception")
+    except:
+        pass
+
+    # Test for incorrect phase condition output and shape
+    def pc_wrong_output(u0, pars):
+        return np.array([1, 2, 3])
+
+    try:
+        sol = np.array(fsolve(shooting_generalised(normal_hopf), u0_guess_hopfnormal, args=(pc_wrong_output, beta)))
+        failed_tests.append("Test 2 failed: incorrect phase condition output and shape did not raise an exception")
+    except:
+        pass
+
+    # Test for incorrect u0 size
+    u0_guess_hopfnormal_wrong = np.array([1.5, 0.1])
+    
+    try:
+        sol = np.array(fsolve(shooting_generalised(normal_hopf), u0_guess_hopfnormal_wrong, args=initial_pars0))
+        failed_tests.append("Test 3 failed: incorrect u0 size did not raise an exception")
+    except:
+        pass
+
+    # Test for incorrect step size type
+    def f2(u0, t, beta):
+        return np.array([beta,'bad'])
+    
+    try:
+        sol = np.array(fsolve(shooting_generalised(f2), u0_guess_hopfnormal, args=initial_pars0))
+        failed_tests.append("Test 4 failed: incorrect step size type did not raise an exception")
+    except:
+        pass
+
+
+    if len(failed_tests) > 0:
+        print("Some tests failed:")
+        for failed_test in failed_tests:
+            print(failed_test)
+    else:
+        print("All tests passed!")
+
+
 
 
 
@@ -166,4 +241,6 @@ def test_shooting(tolerance):
 if __name__ == '__main__':
     test_solution(tolerance=1)
     test_shooting(tolerance=1e-3)
+    test_shooting_inputs()
+    test_shooting_generalised()
 # %%
