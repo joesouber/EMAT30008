@@ -101,38 +101,32 @@ def shooting_generalised(f):
         return np.append(u0 - F(u0, T), pc(u0, *pars))
     return G
 
-def plot_hopf_shooting(sol,pc):
-    #Define the normal Hopf system of equations.
-    def normal_hopf(u, t, beta):
-        u1, u2 = u
-        du1dt = beta*u1 - u2 - u1*(u1**2 + u2**2)
-        du2dt = u1 + beta*u2 - u2*(u1**2 + u2**2)
-        return [du1dt, du2dt]
-
-    # Define the initial conditions, parameters, and time vector.
-    T,u0 = sol[-1],sol[:-1]
-
-    beta = 2
-    t = np.linspace(0, T, 2000)
-
-    # Solve the system of equations using odeint and the initial conditions and parameters.
-    sol1 = odeint(normal_hopf, u0, t, args=(beta,))
-    theta = pc(u0, beta)
-
+def plot_hopf_shooting(sol, pc, beta,normal_hopf):
+    # Define the time vector.
+    t = np.linspace(0, sol[-1], 2000)
+    
+    # Compute the phase angle.
+    theta = pc(sol[:-1], beta)
+    
+    # Compute the analytical solutions.
+    u1 = np.sqrt(beta) * np.cos(t + theta)
+    u2 = np.sqrt(beta) * np.sin(t + theta)
+    
     # Plot the analytical solutions.
-    u1 = np.sqrt(beta)*np.cos(t+theta)
-    u2 = np.sqrt(beta)*np.sin(t+theta)
-
-    plt.plot(t, u1, label='u1',linestyle='--')
-    plt.plot(t, u2, label='u2',linestyle='--')
-    plt.legend()
+    plt.plot(t, u1, label='u1', linestyle='--')
+    plt.plot(t, u2, label='u2', linestyle='--')
+    
+    # Solve the system of equations using odeint.
+    sol1 = odeint(normal_hopf, sol[:-1], t, args=(beta,))
+    
+    # Plot the numerical solutions.
+    plt.plot(t, sol1[:, 0], label='numerical-solution 1', linestyle=':')
+    plt.plot(t, sol1[:, 1], label='numsol2', linestyle=':')
+    
+    # Add labels and legend.
     plt.xlabel('t')
     plt.ylabel('u')
-
-    # Plot the results.
-    plt.plot(t, sol1[:, 0], label='numerical-solution 1',linestyle=':')
-    plt.plot(t, sol1[:, 1], label='numsol2',linestyle=':')
     plt.legend()
-    plt.xlabel('t')
-    plt.ylabel('u')
+    
+    # Show the plot.
     plt.show()
