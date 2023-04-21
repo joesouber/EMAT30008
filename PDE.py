@@ -1,4 +1,3 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import diags, identity
@@ -25,17 +24,22 @@ def apply_bc(pde_sol, time_step, Boundary_Cond, L, t, Boundary_type, CN = False,
 
     return pde_sol
 
-def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100):
+def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100):
 #possibly done
     delta_t = T / mt
     delta_x = L / mx
 
     n = len(pde_sol)
-
-    subdiag = delta_t/(delta_x**2) * D*(x + delta_x/2)[1:]
-    centre_diag = delta_t/(delta_x**2) * (D*(x+delta_x/2) + D*(x-delta_x/2))
-    superdiag = delta_t/(delta_x**2) * D*(x-delta_x/2)[:-1]
+    if linearity == 'linear':
+        subdiag = delta_t/(delta_x**2) * D(x + delta_x/2)[1:]
+        centre_diag = delta_t/(delta_x**2) * (D(x+delta_x/2) + D(x-delta_x/2))
+        superdiag = delta_t/(delta_x**2) * D(x-delta_x/2)[:-1]
     
+    elif linearity == 'nonlinear':
+        subdiag = delta_t/(delta_x**2) * D*(x + delta_x/2)[1:]
+        centre_diag = delta_t/(delta_x**2) * (D*(x+delta_x/2) + D*(x-delta_x/2))
+        superdiag = delta_t/(delta_x**2) * D*(x-delta_x/2)[:-1]
+
     if Boundary_type == 'dirichlet':
         
         np.ones(n-1)[-1] = 0
@@ -53,9 +57,9 @@ def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100):
     return tridiag_mat
 
 
-def explicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+def explicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, linearity,source_term=None,T=0.5,mt=1000,mx=100):
 
-    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100)
     mat1 = (identity(pde_sol.shape[0]) + tridiag)
     mat2= (pde_sol[:,time_step])
     b = (mat1).dot(mat2)
@@ -65,12 +69,12 @@ def explicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,
     
     return pde_sol
 
-def implicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+def implicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,linearity ,source_term=None,T=0.5,mt=1000,mx=100):
 
 
     delta_t = T / mt
     
-    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100)
     n, _ = pde_sol.shape
     tridiag_identity_matrix = identity(n)-tridiag
 
@@ -84,7 +88,7 @@ def implicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,
         delta_x = L / mx
         r = delta_t / (delta_x**2 * D)
     
-        tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+        tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100)
         n, _ = pde_sol.shape
         tridiag_identity_matrix = identity(n) - r * tridiag
     
@@ -93,11 +97,11 @@ def implicit_euler(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,
 
     return pde_sol
 
-def crank_nicholson(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term=None, linearity='linear',T=0.5,mt=1000,mx=100):
+def crank_nicholson(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, linearity,source_term=None,T=0.5,mt=1000,mx=100):
 
     delta_t = T / mt
     
-    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,T=0.5,mt=1000,mx=100)
+    tridiag = tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100)
     n, _ = pde_sol.shape #trying ', _' notation.
     half_tridiag = 0.5*tridiag
     Identity_matrix = identity(n)
@@ -114,7 +118,7 @@ def crank_nicholson(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D
 
     return pde_sol
 
-def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, discretisation, source_term = lambda x,t:0, D = 0.1, linearity='linear'):
+def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, discretisation, source_term, D , linearity):
    
 
 
@@ -124,8 +128,11 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
 # Create arrays of mesh points in space and time
     x = np.arange(0, L+delta_x, delta_x)
     t = np.arange(0, T+delta_t, delta_t)    
-
-    euler_flag = D*delta_t/(delta_x**2)
+    if linearity == 'linear':
+        euler_flag = D(x)*delta_t/(delta_x**2)
+    
+    #elif linearity == 'nonlinear':
+        #euler_flag = D*delta_t/(delta_x**2)
 
     # initialise the solution matrix
     pde_sol = np.zeros(shape=(len(x), len(t)))
@@ -134,7 +141,7 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
         raise ValueError("Nonlinear equations can only be solved using the Backward Euler method.")
     if discretisation == 'feuler':
         # Checks if solver will be stable with this lambda value
-        if (euler_flag > 0.5):
+        if (euler_flag > 0.5).any():
             raise ValueError('Euler flag greater than 0.5, Explicit euler will break down.')
         discretisation = explicit_euler
     elif discretisation == 'beuler':
@@ -145,8 +152,7 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
         raise ValueError('Please choose from Explicit Euler,Implicit Euler,CN')
 
     # Get initial conditions and apply
-    #for i in range(len(x)):
-        #pde_sol[i,0] = IC(x[i], L)
+
     pde_sol[:, 0] = np.vectorize(Initial_C)(x, L)
     
     
@@ -154,7 +160,7 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
     for time_step in range(0, mt):
 
         # Carry out solver step, including the boundaries
-        pde_sol = discretisation(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D, source_term, linearity=linearity)
+        pde_sol = discretisation(pde_sol, t, x, L, Boundary_Cond, Boundary_type, time_step, D,linearity, source_term)
 
     return pde_sol, t
 
