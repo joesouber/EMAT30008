@@ -98,7 +98,7 @@ def plot_comparison(u, t, L, D,u_exact):
     D: diffusion coefficient
     
     Outputs:
-    None (displays a plot)
+    plot
     '''
 
     
