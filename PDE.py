@@ -28,17 +28,18 @@ def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100
 #possibly done
     delta_t = T / mt
     delta_x = L / mx
-
+    DXDT2 = delta_t/(delta_x**2)
     n = len(pde_sol)
+    
     if linearity == 'linear':
-        subdiag = delta_t/(delta_x**2) * D(x + delta_x/2)[1:]
-        centre_diag = delta_t/(delta_x**2) * (D(x+delta_x/2) + D(x-delta_x/2))
-        superdiag = delta_t/(delta_x**2) * D(x-delta_x/2)[:-1]
+        subdiag = DXDT2 * D(x + delta_x/2)[1:]
+        centre_diag = DXDT2 * (D(x+delta_x/2) + D(x-delta_x/2))
+        superdiag = DXDT2 * D(x-delta_x/2)[:-1]
     
     elif linearity == 'nonlinear':
-        subdiag = delta_t/(delta_x**2) * D*(x + delta_x/2)[1:]
-        centre_diag = delta_t/(delta_x**2) * (D*(x+delta_x/2) + D*(x-delta_x/2))
-        superdiag = delta_t/(delta_x**2) * D*(x-delta_x/2)[:-1]
+        subdiag = DXDT2 * D*(x + delta_x/2)[1:]
+        centre_diag = DXDT2 * (D*(x+delta_x/2) + D*(x-delta_x/2))
+        superdiag = DXDT2 * D*(x-delta_x/2)[:-1]
 
     if Boundary_type == 'dirichlet':
         
