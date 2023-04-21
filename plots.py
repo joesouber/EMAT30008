@@ -87,7 +87,7 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
     plt.show()
 
 #PDE
-def plot_comparison(u, t, L, D,u_exact):
+def plot_comparison(u, t, L, D,u_exact,Title = ''):
     '''
     Plots the numerical and exact solutions of a given PDE at midway through the time interval.
     
@@ -112,6 +112,9 @@ def plot_comparison(u, t, L, D,u_exact):
     # Plot the numerical and exact solutions
     plt.plot(x, u[:, int(len(t) * t_plot / t[-1])], 'o', c='r', label='Numerical Solution')
     plt.plot(x, exact_solution, label='Exact Solution')
+    plt.xlabel('x')
+    plt.ylabel('u')
+    plt.title(Title)
     plt.legend()
     plt.show()
 
