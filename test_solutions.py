@@ -6,9 +6,116 @@ import matplotlib.pyplot as plt
 from scipy.optimize import fsolve
 from shooting_plot import shooting_generalised, plot_hopf_shooting,plot_solutions
 from scipy.integrate import odeint
+from numerical_continuation import npc, pseudo_arclength
 
 #%%
 #ode
+def test_ODE_inputs():
+    failed_tests = []
+    def f_ddot(X,t):
+        x, y = X
+        dxdt = y
+        dydt = -x
+        return np.array([dxdt, dydt])
+
+    # Test 1: Correct input
+    try:
+        x0 = np.array([1, 0])  # Initial conditions
+        t_eval = np.linspace(0, 10, 101)  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode(f_ddot, x0, t_eval, max_step, method, system)
+        assert X.shape == (2, 101)
+    except:
+        failed_tests.append("Test 1 failed ")
+    else:
+        print("Test 1 passed")
+
+
+    # Test 2: Wrong type of function
+    try:
+        x0 = np.array([1, 0])  # Initial conditions
+        t_eval = np.linspace(0, 10, 101)  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode("f_ddot", x0, t_eval, max_step, method, system)
+        assert False
+    except TypeError:
+        failed_tests.append("Test 2 passed")
+
+
+    # Test 3: ODE has incorrect output
+    def f_wrong_output(x, t):
+        return x
+
+    try:
+        x0 = np.array([1, 0])  # Initial conditions
+        t_eval = np.linspace(0, 10, 101)  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode(f_wrong_output, x0, t_eval, max_step, method, system)
+        assert False
+    except AssertionError:
+        failed_tests.append("Test 3 passed")
+
+
+    # Test 4: ODE outputs wrong size
+    def f_wrong_size(x, t):
+        return np.array([x[0]])
+
+    try:
+        x0 = np.array([1, 0])  # Initial conditions
+        t_eval = np.linspace(0, 10, 101)  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode(f_wrong_size, x0, t_eval, max_step, method, system)
+        assert False
+    except AssertionError:
+        failed_tests.append("Test 4 passed")
+
+
+    # Test 5: x0 is wrong type and size
+    try:
+        x0 = 1  # Initial conditions
+        t_eval = np.linspace(0, 10, 101)  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode(f_ddot, x0, t_eval, max_step, method, system)
+        assert False
+    except TypeError:
+        failed_tests.append("Test 5 passed")
+
+
+    # Test 6: t_eval is wrong type and size
+    try:
+
+        x0 = np.array([1, 0])  # Initial conditions
+        t_eval = 10  # Evaluation points
+        max_step = 0.1  # Maximum step size
+        method = 'RK4'  # Numerical method
+        system = True  # System of ODEs
+        X = solve_ode(f_ddot, x0, t_eval, max_step, method, system)
+        assert False
+    except TypeError:
+        failed_tests.append("Test 6 passed")
+
+    
+    if len(failed_tests) == 0:
+        print('\n---------------------------------------\n')
+        print("All tests passed!")
+        print('\n---------------------------------------\n')
+    else:
+        print('Some input tests failed:')
+        for test in failed_tests:
+            print('\n---------------------------------------\n')
+            print(test)
+            print('\n---------------------------------------\n')
+
 def test_ode_output(tolerance):
     # Define the function to be solved
     def f(x, t):
@@ -118,9 +225,7 @@ def test_shooting_inputs():
             print(test)
             print('\n---------------------------------------\n')
 
-import numpy as np
-from scipy.integrate import solve_ivp
-#%%
+
 
 def test_shooting_generalised_inputs():
     
@@ -200,14 +305,6 @@ def test_shooting_generalised_inputs():
         print('\n---------------------------------------\n')
 
 
-
-
-
-
-
-#%%
-
-
 def test_shooting_output(tolerance):
     def normal_hopf(u0, t, beta):
 
@@ -250,9 +347,116 @@ def test_shooting_output(tolerance):
     print('Shooting method: Numerical and exact solutions match closely to the specified tolerance.')
     print('\n---------------------------------------\n')
 
+#%% Continuation ##WIP
+def continuation_test():
+    failed_tests  = []
+    def cubic(x, pars):
+        """
+        This function defines a cubic equation
+        :param x: Value of x
+        :param pars: Defines the additional parameter c
+        :return: returns the value of the cubic equation at x
+        """
+        c = pars[0]
+        return x ** 3 - x + c
+    
+    #Test 1: incorrect function type
+    try:
+
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc('cubic', u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='none')
+        assert False
+    except TypeError:
+        failed_tests.append("Test 1 passed")
+
+    #Test 2: incorrect function output
+    def cubic_wrong_output(x, pars):
+        return np.array([1, 2, 3])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_output, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='none')
+        assert False
+    except ValueError:
+        failed_tests.append("Test 2 passed")
+
+    #Test 3: incorrect u0 size
+    def cubic_wrong_u0(x, pars):
+        return x ** 3 - x + pars[0]
+    try:
+        u0_guess_cubic = np.array([1, 2])
+        np_par_list, np_sol_list = npc(cubic_wrong_u0, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='none')
+        assert False
+    except ValueError:
+        failed_tests.append("Test 3 passed")
+
+    #Test 4: incorrect step size type
+    def cubic_wrong_step(x, pars):
+        return np.array([1, 'bad'])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_step, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='none')
+        assert False
+    except TypeError:
+        failed_tests.append("Test 4 passed")
+
+    #Test 5: incorrect step size value
+    def cubic_wrong_step_value(x, pars):
+        return np.array([1, 0])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_step_value, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='none')
+        assert False
+    except ValueError:
+        failed_tests.append("Test 5 passed")
+
+    #Test 6: incorrect solver type
+    def cubic_wrong_solver(x, pars):
+        return np.array([1, 2])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_solver, u0_guess_cubic, [-2], 2, lambda x: x, 'bad',pc='none')
+        assert False
+    except TypeError:
+        failed_tests.append("Test 6 passed")
+
+
+    #Test 7: incorrect pc type
+    def cubic_wrong_pc(x, pars):
+        return np.array([1, 2])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_pc, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc=1)
+        assert False
+    except TypeError:
+        failed_tests.append("Test 8 passed")
+
+    #Test 8: incorrect pc value
+    def cubic_wrong_pc_value(x, pars):
+        return np.array([1, 2])
+    try:
+        u0_guess_cubic = np.array([1])
+        np_par_list, np_sol_list = npc(cubic_wrong_pc_value, u0_guess_cubic, [-2], 2, lambda x: x, fsolve,pc='bad')
+        assert False
+    except ValueError:
+        failed_tests.append("Test 9 passed")
+
+    
+
+        print('All input tests passed:')
+        for test in failed_tests:
+            print('\n---------------------------------------\n')
+            print(test)
+            print('\n---------------------------------------\n')
+
+
+
+
+
 if __name__ == '__main__':
     test_ode_output(tolerance=1)
     test_shooting_output(tolerance=1e-3)
     test_shooting_inputs()
     test_shooting_generalised_inputs()
+    test_ODE_inputs()
+    #continuation_test()
 # %%
