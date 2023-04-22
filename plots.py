@@ -120,19 +120,3 @@ def plot_comparison(u, t, L, D,u_exact,Title = ''):
 
 
 
-def animate_solution(u, t, L):
-    fig, ax = plt.subplots()
-    x = np.linspace(0, L, u.shape[0])
-    line, = ax.plot(x, u[:, 0])
-    ax.set_xlim(0, L)
-    ax.set_ylim(np.min(u), np.max(u))
-    ax.set_title('Solution at t = {:.3f}'.format(t[0]))
-    ax.set_xlabel('x')
-    ax.set_ylabel('u')
-
-    def update(frame):
-        line.set_ydata(u[:, frame])
-        ax.set_title('Solution at t = {:.3f}'.format(t[frame]))
-
-    animation  = FuncAnimation(fig, update, frames=u.shape[1], interval=10, blit=False)
-    plt.show()
