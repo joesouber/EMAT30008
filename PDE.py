@@ -140,12 +140,12 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
     
     if linearity == 'nonlinear' and discretisation != 'beuler':
         raise ValueError("Nonlinear equations can only be solved using the Backward Euler method.")
-    if discretisation == 'feuler':
+    if discretisation == 'explicit':
         # Checks if solver will be stable with this lambda value
         if (euler_flag > 0.5).any():
             raise ValueError('Euler flag greater than 0.5, Explicit euler will break down.')
         discretisation = explicit_euler
-    elif discretisation == 'beuler':
+    elif discretisation == 'implicit':
         discretisation = implicit_euler
     elif discretisation == 'cn':
         discretisation = crank_nicholson
