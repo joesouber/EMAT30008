@@ -21,7 +21,19 @@ def apply_bc(pde_sol, time_step, Boundary_Cond, L, t, Boundary_type, CN = False,
 
         coefficients = [-2*delta_t/delta_x * alpha]  + [-2*delta_t/delta_x * beta] + [0]*(len(pde_sol)-2)
         pde_sol = [val + coef for val, coef in zip(pde_sol, coefficients)]
+    
+    elif Boundary_type == 'robin':
+        # Calculate the Robin coefficient at the boundary
+        r0 = Boundary_Cond(0, t[time_step], robin=True)
+        rL = Boundary_Cond(L, t[time_step], robin=True)
 
+        # Modify the matrix coefficients to account for Robin boundary conditions
+        if CN:
+            pde_sol[0] += (r0*delta_t/delta_x)*pde_sol[1]
+            pde_sol[-1] += (rL*delta_t/delta_x)*pde_sol[-2]
+        else:
+            pde_sol[0] += (2*r0*delta_t/delta_x)*pde_sol[0] + (2*delta_t/delta_x)*alpha
+            pde_sol[-1] += (2*rL*delta_t/delta_x)*pde_sol[-1] + (2*delta_t/delta_x)*beta
     return pde_sol
 
 def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100):
@@ -50,7 +62,22 @@ def tridiag_mat(pde_sol, Boundary_type, t, x, D,L,linearity,T=0.5,mt=1000,mx=100
     elif Boundary_type == 'neumann':
         
         np.ones(n-1)[-1] = 2
-    
+    elif Boundary_type == 'robin':
+        
+        beta = 0
+        alpha = 0
+        gamma = 0
+        delta = 0
+
+        subdiag[0] += DXDT2 * alpha / delta_x
+        centre_diag[0] += DXDT2 * (-2 * alpha / delta_x + beta)
+        superdiag[0] += DXDT2 * alpha / delta_x
+        pde_sol[0] += DXDT2 * gamma
+
+        subdiag[-1] += DXDT2 * beta / delta_x
+        centre_diag[-1] += DXDT2 * (2 * beta / delta_x + alpha)
+        superdiag[-1] += DXDT2 * beta / delta_x
+        pde_sol[-1] += DXDT2 * delta
     diagonals = (subdiag*np.ones(n-1), centre_diag*np.array([-1]*n), superdiag*np.ones(n-1))
     offset = (-1,0,1)
     
