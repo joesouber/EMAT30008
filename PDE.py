@@ -345,9 +345,10 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
     # Initialise the solution matrix
     pde_sol = np.zeros(shape=(len(x), len(t)))
     
-    # Check if nonlinear PDE is being solved with the correct method
-    if linearity == 'nonlinear' and discretisation != 'implicit':
+# Check if nonlinear PDE is being solved with the correct method
+    if linearity == 'nonlinear' and discretisation not in ['implicit', 'cn']:
         raise ValueError("Nonlinear equations can only be solved using the Implicit Euler and Crank-Nicholson methods.")
+
     
     # Determine the finite difference method to use
     if discretisation == 'explicit':
