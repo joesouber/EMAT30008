@@ -14,6 +14,18 @@ def plot_ode(num_sol,analytic_sol,t_eval):
     plt.legend()
     plt.show()
 
+def plot_system_ode(num_sol,analytic_sol,t_eval):
+    true_sol = np.array([true_sol(t) for t in t_eval])
+
+    plt.plot(t_eval, num_sol[0], label='RK4')
+    plt.plot(t_eval, analytic_sol[:,0], 'o-',label='True solution')
+    plt.plot(t_eval, num_sol[1], label='RK4')
+    plt.plot(t_eval, analytic_sol[:,1], label='True solution')
+
+    plt.ylabel('x')
+    plt.legend()
+    plt.show()
+
 def calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         """
         Calculate the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
@@ -130,13 +142,14 @@ def plot_comparison(u, t, L, D,u_exact,Title = ''):
     exact_solution = u_exact(x, t_plot,D,L)
     
     # Plot the numerical and exact solutions
-    plt.plot(x, u[:, int(len(t) * t_plot / t[-1])], 'o', c='r', label='Numerical Solution')
+    plt.plot(x, u[:, int(len(t) * t_plot / t[-1])], '+', c='y', label='Numerical Solution')
     plt.plot(x, exact_solution, label='Exact Solution')
     plt.xlabel('x')
     plt.ylabel('u')
     plt.title(Title)
     plt.legend()
     plt.show()
+
 
 
 
