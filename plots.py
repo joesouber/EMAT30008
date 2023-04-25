@@ -5,6 +5,15 @@ from ODE import solve_ode
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 #ODE
+def plot_ode(num_sol,analytic_sol,t_eval):
+    plt.plot(t_eval, num_sol[:,0], label='Numerical solution')
+    plt.plot(t_eval, analytic_sol(t_eval), label='True solution')
+    plt.title('First Order ODE')
+    plt.xlabel('Time')
+    plt.ylabel('x')
+    plt.legend()
+    plt.show()
+
 def calculate_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
         """
         Calculate the error between the approximate solution obtained using Euler, RK4 or Heun method and the true solution
