@@ -86,6 +86,17 @@ def plot_error(f, f_true_solution, x0, t0, t1, dt_list, *args):
     plt.legend()
     plt.show()
 
+#Continuation
+
+def bifurc_plot(par_list, sol_list,title=''):
+    plt.plot(par_list, sol_list, 'b-')
+    
+    plt.title(title)
+    plt.xlabel('c'), plt.ylabel('x'), plt.legend()
+    plt.show()
+
+
+
 #PDE
 def plot_comparison(u, t, L, D,u_exact,Title = ''):
     '''
