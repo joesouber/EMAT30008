@@ -38,15 +38,21 @@ def npc(ode_func, init_conds, pars, vary_min, discretisation='shooting', solver=
         Array of solution points for the continuation.
     """
 
+    
+    parameter_array = np.linspace(pars[0], vary_min, 30) # Array of parameter values, default set to 30, make smaller if want quicker.
+    
 
-    parameter_array = np.linspace(pars[0], vary_min, 30)
-    sol_list = []
+    sol_list = [] # List of solution points
+    
+    # Loop over the parameter values
     for i in parameter_array:
-        pars.__setitem__(0, i)
-        param_init = (pc or '') and ((pc or '') != 'none') and (pc, pars) or pars
-        sol = np.array(solver(discretisation(ode_func), init_conds, args=param_init))
-        sol_list.append(sol)
-        u0 = sol
+
+        pars.__setitem__(0, i) # Set the first parameter to the current parameter value
+        param_init = (pc or '') and ((pc or '') != 'none') and (pc, pars) or pars # Set the parameter continuation function
+        sol = np.array(solver(discretisation(ode_func), init_conds, args=param_init)) # Solve the system of ODEs
+        sol_list.append(sol)# Add the solution point to the list of solution points
+        init_conds = sol# Set the initial conditions to the current solution point
+
     return parameter_array, np.array(sol_list)
 
 
