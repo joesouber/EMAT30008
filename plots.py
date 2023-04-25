@@ -151,5 +151,21 @@ def plot_comparison(u, t, L, D,u_exact,Title = ''):
     plt.show()
 
 
+def plot_bratu(t_index,u,t,L,mx,bratu_exact):
+    
+        # Select the slice of the solution at t=t_plot
+    solution1 = u[:,[t==t_index] [0]]
+    u_exact = bratu_exact(np.linspace(0,L,mx+1), 0.3, 1, L, 0.1)
+    
 
+    #zz = np.linspace(0,L,u_exact1.shape[0])
+    yy = np.linspace(0,L,u_exact.shape[0])
+    xx = np.linspace(0,L,u.shape[0])
+    # Plot u at t=t_plot
+    plt.plot(xx, solution1, label='Numerical Solution')
+    plt.plot(yy, u_exact, label='analytic Solution')
+    
+    plt.legend()
+    plt.plot
+    plt.show()
 
