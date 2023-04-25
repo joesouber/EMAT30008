@@ -9,7 +9,7 @@ from scipy.optimize import fsolve
 
 
 
-def npc(f, u0, pars, vary_min, discretisation='shooting', solver=fsolve, pc='none'):
+def npc(ode_func, init_conds, pars, vary_min, discretisation='shooting', solver=fsolve, pc='none'):
     """
     Perform numerical path continuation on a system of ODEs.
 
@@ -38,30 +38,15 @@ def npc(f, u0, pars, vary_min, discretisation='shooting', solver=fsolve, pc='non
         Array of solution points for the continuation.
     """
 
-    # Generate an array of parameter values to use in the continuation.
+
     parameter_array = np.linspace(pars[0], vary_min, 30)
-
-    # Initialize an empty list to store the solutions.
     sol_list = []
-
-    # Iterate over the parameter values.
     for i in parameter_array:
-        # Update the parameter value in `pars`.
         pars.__setitem__(0, i)
-
-        # Set the initial conditions for the ODE system.
-        initial_pars0 = (pc or '') and ((pc or '') != 'none') and (pc, pars) or pars
-
-        # Solve the ODE system using the specified method and solver.
-        sol = np.array(solver(discretisation(f), u0, args=initial_pars0))
-
-        # Append the solution to the list of solutions.
+        param_init = (pc or '') and ((pc or '') != 'none') and (pc, pars) or pars
+        sol = np.array(solver(discretisation(ode_func), init_conds, args=param_init))
         sol_list.append(sol)
-
-        # Set the initial conditions for the next step to be the current solution.
         u0 = sol
-
-    # Return the parameter values and the list of solutions as a tuple.
     return parameter_array, np.array(sol_list)
 
 
@@ -96,8 +81,8 @@ def pseudo_arclength(ode_func, init_conds, param_bounds, step_size, discretisati
     # Create a dictionary to store lambda functions and nested functions
     function_map = {
         'should_stop': lambda K: (param_end > param_start and K > param_end) or (param_end < param_start and K < param_end),
-        'first_solution': lambda U: discretisation(U, ode_func, param_start),
-        'second_solution': lambda U: discretisation(U, ode_func, param_list[1]),
+        'first_solution': lambda pde_sol: discretisation(pde_sol, ode_func, param_start),
+        'second_solution': lambda pde_sol: discretisation(pde_sol, ode_func, param_list[1]),
         'arclength_constraint': lambda next_step, prediction, delta: np.dot(next_step - prediction, delta),
         'combined_equations': lambda next_step: np.append(discretisation(next_step[1:], ode_func, next_step[0]), function_map['arclength_constraint'](next_step, prediction, delta)),
     }
