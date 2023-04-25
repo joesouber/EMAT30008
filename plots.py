@@ -14,8 +14,8 @@ def plot_ode(num_sol,analytic_sol,t_eval):
     plt.legend()
     plt.show()
 
-def plot_system_ode(num_sol,analytic_sol,t_eval):
-    true_sol = np.array([true_sol(t) for t in t_eval])
+def plot_system_ode(num_sol,t_eval,analytic_sol):
+    analytic_sol = np.array([analytic_sol(t) for t in t_eval])
 
     plt.plot(t_eval, num_sol[0], label='RK4')
     plt.plot(t_eval, analytic_sol[:,0], 'o-',label='True solution')
