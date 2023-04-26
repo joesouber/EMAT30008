@@ -7,7 +7,7 @@ from scipy.optimize import fsolve
 from shooting_plot import shooting_generalised, plot_hopf_shooting,plot_solutions
 from scipy.integrate import odeint
 from numerical_continuation import npc, pseudo_arclength
-
+from PDE import *
 #%%
 #ode
 def test_ODE_inputs():
@@ -449,6 +449,159 @@ def continuation_test():
             print('\n---------------------------------------\n')
 
 
+#PDE
+
+def test_PDE_inputs():
+
+
+    #explicit euler and dirichlet
+    failed_tests  = []
+    L = 1 # length of the domain
+    T = 0.5 # total time
+    mx = 100 # number of grid points in space
+    mt = 1000 # number of grid points in time
+
+    def u_exact(x, t,D,L):  
+        y = np.exp(-D*(np.pi**2/L**2)*t)*np.sin(np.pi*x/L)
+        return y
+
+    # Dirichlet boundary conditions, 0 on both ends.
+    def dirichlet_0(x, t):
+        return 0
+
+    # Initial condition, sin(pi*x/L).
+    def Initial_Condition(x, L):
+        y = (np.sin(np.pi*x/L))
+        return y
+
+    # Diffusion coefficient,needs to be a function of x, to be compatible with the finite difference method.
+    def D(x):
+        return x / (x * 10)
+
+    # Source term, needs to be a function of x and t, to be compatible with the finite difference method. 0 for this demonstration.
+    def source_term(x,t):
+        return 0
+
+
+    #explicit euler and dirichlet
+    u, t = finite_difference(L, T, mx, mt, 'dirichlet', dirichlet_0, Initial_Condition, discretisation='explicit',source_term = source_term, D = D, linearity='linear')
+        
+    #Test 1: incorrect boundary condition
+    try:
+
+        u, t = finite_difference(L, T, mx, mt, 'ABC', dirichlet_0, Initial_Condition, 
+                                 discretisation='explicit',source_term = source_term, D = D, linearity='linear')
+
+        assert False
+    except AssertionError:
+        failed_tests.append("Test 1 passed")
+
+    #Test 2: incorrect initial condition
+    try:
+            
+        u, t = finite_difference(L, T, mx, mt, 1, dirichlet_0, 'Initial_Condition', 
+                                discretisation='explicit',source_term = source_term, D = D, linearity='linear')
+    
+        assert False
+    except TypeError:
+        failed_tests.append("Test 2 passed")
+
+    #Test 3: incorrect discretisatin already tested within function itself.
+
+    #Test 4: incorrect source term
+    try:
+                    
+            u, t = finite_difference(L, T, mx, mt, 'dirichlet', dirichlet_0, Initial_Condition, 
+                                        discretisation='explicit',source_term = 1, D = D, linearity='linear')
+            
+            assert False
+    except TypeError:
+        failed_tests.append("Test 4 passed")
+
+    #Test 5: incorrect diffusion coefficient
+    try:
+                            
+            u, t = finite_difference(L, T, mx, mt, 'dirichlet', dirichlet_0, Initial_Condition, 
+                                        discretisation='explicit',source_term = source_term, D = 'incorrect', linearity='linear')
+                    
+            assert False
+    except TypeError:
+        failed_tests.append("Test 5 passed")
+
+    #Test 6: incorrect linearity
+    try:
+                                    
+            u, t = finite_difference(L, T, mx, mt, 'dirichlet', dirichlet_0, Initial_Condition, 
+                                            discretisation='explicit',source_term = source_term, D = D, linearity=[1,2])
+                            
+            assert False
+    except UnboundLocalError:
+        
+        
+        failed_tests.append("Test 6 passed")
+
+    
+
+
+    if len(failed_tests) == 0:
+        print('\n---------------------------------------\n')
+        print("All tests passed!")
+        print('\n---------------------------------------\n')
+    else:
+        print('Some input tests failed:')
+        for test in failed_tests:
+            print('\n---------------------------------------\n')
+            print(test)
+            print('\n---------------------------------------\n')
+
+
+import numpy as np
+
+def test_PDE_output(tolerance):
+    # Define the function to be solved
+    L = 1  # length of the domain
+    T = 0.5  # total time
+    mx = 100  # number of grid points in space
+    mt = 1000  # number of grid points in time
+
+    def u_exact(x, t, D, L):
+        y = np.exp(-D * (np.pi ** 2 / L ** 2) * t) * np.sin(np.pi * x / L)
+        return y
+
+    # Dirichlet boundary conditions, 0 on both ends.
+    def dirichlet_0(x, t):
+        return 0
+
+    # Initial condition, sin(pi*x/L).
+    def Initial_Condition(x, L):
+        y = (np.sin(np.pi * x / L))
+        return y
+
+    # Diffusion coefficient, needs to be a function of x, to be compatible with the finite difference method.
+    def D(x):
+        return x / (x * 10)
+
+    # Source term, needs to be a function of x and t, to be compatible with the finite difference method. 0 for this demonstration.
+    def source_term(x, t):
+        return 0
+
+    # explicit euler and dirichlet
+    u, t = finite_difference(L, T, mx, mt, 'dirichlet', dirichlet_0, Initial_Condition, discretisation='explicit',
+                              source_term=source_term, D=D, linearity='linear')
+
+    # Test the numerical solution against the true solution using allclose
+    # set a tolerance value
+    t_plot = t[-1] /2
+    
+    # Calculate the exact solution at the selected time step
+    x = np.linspace(0, L, len(u))
+    exact_solution = u_exact(x, t_plot,0.1,L)
+    
+    is_close = np.allclose(u[:, int(len(t) * t_plot / t[-1])], exact_solution, rtol=tolerance, atol=tolerance)
+    print('\n---------------------------------------\n')
+    print(f"Numerical and exact solutions match closely: {is_close}")
+    print('\n---------------------------------------\n')
+
 
 
 
@@ -458,5 +611,7 @@ if __name__ == '__main__':
     test_shooting_inputs()
     test_shooting_generalised_inputs()
     test_ODE_inputs()
+    test_PDE_inputs()
+    test_PDE_output(tolerance=1e-3)
     #continuation_test()
 # %%

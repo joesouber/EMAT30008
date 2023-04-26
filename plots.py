@@ -169,3 +169,14 @@ def plot_bratu(t_index,u,t,L,mx,bratu_exact):
     plt.plot
     plt.show()
 
+def plot_allen_cahn(u,t ,t_index1):
+    # Select the slice of the solution at t=t_index1
+    solution1 = u[:, [t == t_index1][0]]
+    xx = np.linspace(0, L, u.shape[0])
+    plt.plot(xx, solution1, label='Numerical Solution')
+    plt.legend()
+    plt.xlabel('x')
+    plt.ylabel('u')
+    plt.title('Allen-Cahn equation at t={}'.format(t_index1))
+    plt.show()
+
