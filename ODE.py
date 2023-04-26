@@ -2,7 +2,6 @@
 import matplotlib.pyplot as plt
 import math
 import numpy as np
-from ODE_PDE_funcs import f, f_true_solution
 from checks import *
 
 
