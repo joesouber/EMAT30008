@@ -12,7 +12,7 @@ Shooting can be implemented alongside a solver such as fsolve to discretise an I
 # Numerical Continuation
 Two methods have been implemented: Natural Paramter Continuation and Pseudo-Arclength.
 
-#PDEs
+# PDEs
 Can use finite_differences function to solve a range of PDEs in the form of the Diffusion equation. Explicit and Implicit Euler mthods have been implemented alongside the Crank-Nicholson method. I have also included an animation file to demonstrate the development of the solutions of some examples over time.
 
 
