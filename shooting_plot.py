@@ -7,6 +7,52 @@ import numdifftools as nd
 from ODE import solve_ode
 
 
+def shooting_generalised(f):
+    """
+    Returns a function G that defines the residual of a boundary value problem, suitable for use with a root-finding
+    algorithm like scipy.optimize.root. The boundary value problem is defined by the function f, which represents a
+    system of ordinary differential equations. The function G takes arguments u0_T, pc, *pars, where u0_T is a numpy
+    array containing the initial state and the final time, pc is a function that computes the residuals at the boundary
+    condition, and *pars are additional parameters that can be passed to the functions f and pc.
+    
+    Args:
+        f: function defining the system of ODEs, takes arguments (t, x, *pars) where t is the current time, x is the
+            current state, and *pars are additional parameters
+            
+    Returns:
+        residual: function defining the residual of the boundary value problem, takes arguments u0_T, pc, *pars, where u0_T
+            is a numpy array containing the initial state and the final time, pc is a function that computes the
+            residuals at the boundary condition, and *pars are additional parameters that can be passed to the functions
+            f and pc
+    """
+
+    def residual(u0_T, pc, *pars):
+        """
+        Computes the residual of a boundary value problem for a system of ODEs defined by the function f. The boundary
+        value problem consists of finding the initial state u0 and final time T that satisfy the boundary conditions
+        specified by the function pc. Additional parameters can be passed to the functions f and pc using *pars.
+        
+        Args:
+            u0_T: numpy array containing the initial state and the final time, in that order
+            pc: function that computes the residuals at the boundary condition, takes arguments (u0, *pars) where u0 is
+                the initial state and *pars are additional parameters
+            *pars: additional parameters to pass to the functions f and pc
+            
+        Returns:
+            numpy array containing the residual of the boundary value problem, given u0_T and pc
+        """
+        
+        # Create a list of time values to solve over
+        t_eval = np.linspace(0, u0_T[-1], 1000)
+        
+        # Solve the ODE using solve_ode, and directly calculate the residuals
+        return np.append(
+            u0_T[:-1] - solve_ode(f, u0_T[:-1], t_eval, 0.01, 'RK4', True, *pars)[:, -1],
+            pc(u0_T[:-1], *pars)
+        )
+    
+    return residual
+
 def plot_solutions(ode,pc,u0,args=(), max_step=0.01):
     
     def shooting(ode, u0, pc, solver, **params):
@@ -77,55 +123,6 @@ def pred_prey_plot(a,d,bs,f):
         plt.xlabel('Time')
         plt.ylabel('Population')
         plt.show()
-
-
-
-def shooting_generalised(f):
-    """
-    Returns a function G that defines the residual of a boundary value problem, suitable for use with a root-finding
-    algorithm like scipy.optimize.root. The boundary value problem is defined by the function f, which represents a
-    system of ordinary differential equations. The function G takes arguments u0_T, pc, *pars, where u0_T is a numpy
-    array containing the initial state and the final time, pc is a function that computes the residuals at the boundary
-    condition, and *pars are additional parameters that can be passed to the functions f and pc.
-    
-    Args:
-        f: function defining the system of ODEs, takes arguments (t, x, *pars) where t is the current time, x is the
-            current state, and *pars are additional parameters
-            
-    Returns:
-        residual: function defining the residual of the boundary value problem, takes arguments u0_T, pc, *pars, where u0_T
-            is a numpy array containing the initial state and the final time, pc is a function that computes the
-            residuals at the boundary condition, and *pars are additional parameters that can be passed to the functions
-            f and pc
-    """
-
-    def residual(u0_T, pc, *pars):
-        """
-        Computes the residual of a boundary value problem for a system of ODEs defined by the function f. The boundary
-        value problem consists of finding the initial state u0 and final time T that satisfy the boundary conditions
-        specified by the function pc. Additional parameters can be passed to the functions f and pc using *pars.
-        
-        Args:
-            u0_T: numpy array containing the initial state and the final time, in that order
-            pc: function that computes the residuals at the boundary condition, takes arguments (u0, *pars) where u0 is
-                the initial state and *pars are additional parameters
-            *pars: additional parameters to pass to the functions f and pc
-            
-        Returns:
-            numpy array containing the residual of the boundary value problem, given u0_T and pc
-        """
-        
-        # Create a list of time values to solve over
-        t_eval = np.linspace(0, u0_T[-1], 1000)
-        
-        # Solve the ODE using solve_ode, and directly calculate the residuals
-        return np.append(
-            u0_T[:-1] - solve_ode(f, u0_T[:-1], t_eval, 0.01, 'RK4', True, *pars)[:, -1],
-            pc(u0_T[:-1], *pars)
-        )
-    
-    return residual
-
 
 
 
