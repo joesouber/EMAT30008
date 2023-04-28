@@ -79,6 +79,9 @@ def tridiag_mat(pde_sol, Boundary_type, t, x, D, L, linearity, T=0.5, mt=1000, m
     delta_x = L / mx
     DXDT2 = delta_t/(delta_x**2)
     n = len(pde_sol)
+    
+    # Setting up the coeffecients of the diagonals, so that the matrix 
+    # can be constructed for the variable diffusion coefficient case.
 
     if linearity == 'linear':
         subdiag = DXDT2 * D(x + delta_x/2)[1:]
