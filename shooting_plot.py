@@ -10,7 +10,7 @@ from ODE import solve_ode
 def shooting_generalised(f):
     """
     Returns a function G that defines the residual of a boundary value problem, suitable for use with a root-finding
-    algorithm like scipy.optimize.root. The boundary value problem is defined by the function f, which represents a
+    algorithm like scipy.optimize.fsolve. The boundary value problem is defined by the function f, which represents a
     system of ordinary differential equations. The function G takes arguments u0_T, pc, *pars, where u0_T is a numpy
     array containing the initial state and the final time, pc is a function that computes the residuals at the boundary
     condition, and *pars are additional parameters that can be passed to the functions f and pc.

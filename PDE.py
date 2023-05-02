@@ -24,7 +24,7 @@ def apply_bc(pde_sol, time_step, Boundary_Cond, L, t, Boundary_type, CN=False, T
         ndarray: The solution vector with the boundary conditions applied.
     """
 
-    delta_t = T / mt
+    delta_t = T / mt 
     delta_x = L / mx
 
     #where alpha and beta represent the 0 and L bound conds.
@@ -324,7 +324,7 @@ def finite_difference(L, T, mx, mt, Boundary_type, Boundary_Cond, Initial_C, dis
     Initial_C (function): function specifying the initial condition
     discretisation (str): type of finite difference method to use ('explicit', 'implicit', or 'cn')
     source_term (function): function specifying the source term in the PDE
-    D (function or float): function specifying the diffusion coefficient in the PDE, or a constant value if the PDE is linear
+    D (function or float): function specifying the diffusion coefficient in the PDE if the PDE is linear, integer if the PDE is nonlinear
     linearity (str): 'linear' or 'nonlinear' depending on whether the PDE is linear or nonlinear
     
     Returns:

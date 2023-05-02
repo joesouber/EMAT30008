@@ -5,9 +5,6 @@ import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.optimize import fsolve
 
-#%%
-
-
 
 def npc(ode_func, init_conds, pars, vary_min, discretisation='shooting', solver=fsolve, pc='none'):
     """
@@ -121,8 +118,3 @@ def pseudo_arclength(ode_func, init_conds, param_bounds, step_size, discretisati
     return param_list, solution_points
 
 
-
-
-
-#
-# %%
